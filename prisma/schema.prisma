@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// Usuários e Controle de Acesso
+// -----------------------------------------------------------------------------
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  perfil    Perfil   @default(DOCENTE)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamento com Docente (1:1 opcional, pois coordenador pode não ser docente)
+  docente Docente?
+}
+
+enum Perfil {
+  COORDENADOR
+  OPP
+  DOCENTE
+}
+
+// -----------------------------------------------------------------------------
+// Estrutura Acadêmica (Áreas e UCs)
+// -----------------------------------------------------------------------------
+model AreaTecnologica {
+  id        String   @id @default(uuid())
+  nome      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unidadesCurriculares UnidadeCurricular[]
+  docentes             DocenteArea[]
+  turmas               Turma[]
+}
+
+model UnidadeCurricular {
+  id        String   @id @default(uuid())
+  nome      String
+  areaId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  area                AreaTecnologica @relation(fields: [areaId], references: [id])
+  docentesCompetentes DocenteUC[]
+  atribuicoes         Atribuicao[]
+}
+
+// -----------------------------------------------------------------------------
+// Cadastro de Docentes e Competências
+// -----------------------------------------------------------------------------
+model Docente {
+  id                     String  @id @default(uuid())
+  usuarioId              String? @unique
+  cargaHorariaContratada Int
+  tipoContratacao        String
+  observacoes            String?
+
+  // Disponibilidade Semanal (true = tem disponibilidade)
+  dispManha    Boolean @default(false)
+  dispTarde    Boolean @default(false)
+  dispNoite    Boolean @default(false)
+  dispIntegral Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  usuario      Usuario?      @relation(fields: [usuarioId], references: [id])
+  areas        DocenteArea[]
+  competencias DocenteUC[]
+  atribuicoes  Atribuicao[]
+}
+
+// Tabela de Junção: Docente <-> Área Tecnológica
+model DocenteArea {
+  docenteId String
+  areaId    String
+
+  docente Docente         @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  area    AreaTecnologica @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  @@id([docenteId, areaId])
+}
+
+// Tabela de Junção: Docente <-> Unidade Curricular (Competências)
+model DocenteUC {
+  docenteId String
+  ucId      String
+
+  docente Docente           @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  uc      UnidadeCurricular @relation(fields: [ucId], references: [id], onDelete: Cascade)
+
+  @@id([docenteId, ucId])
+}
+
+// -----------------------------------------------------------------------------
+// Turmas e Atribuição de Aulas
+// -----------------------------------------------------------------------------
+model Turma {
+  id               String    @id @default(uuid())
+  nome             String
+  areaId           String
+  oppResponsavelId String? // ID do Usuario com perfil OPP
+  tipoCurso        TipoCurso
+  dataInicio       DateTime
+  dataTermino      DateTime
+  aulasSemanais    Int
+  totalAulas       Int
+
+  diasSemana String // Ex: "Seg,Qua,Sex"
+  periodo    Periodo
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  area        AreaTecnologica @relation(fields: [areaId], references: [id])
+  atribuicoes Atribuicao[]
+}
+
+enum TipoCurso {
+  TECNICO
+  CAI
+  FIC
+}
+
+enum Periodo {
+  MANHA
+  TARDE
+  NOITE
+  INTEGRAL
+}
+
+// Atribuição de uma UC de uma Turma a um Docente num horário específico
+model Atribuicao {
+  id        String  @id @default(uuid())
+  turmaId   String
+  ucId      String
+  docenteId String? // Pode estar vazio caso a aula ainda não tenha sido atribuída
+
+  diaSemana Int // 0 a 6 (Domingo a Sábado)
+  horario   String // Ex: "08:00 - 09:30" ou "Aula 1"
+  local     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  turma   Turma             @relation(fields: [turmaId], references: [id])
+  uc      UnidadeCurricular @relation(fields: [ucId], references: [id])
+  docente Docente?          @relation(fields: [docenteId], references: [id])
+}
