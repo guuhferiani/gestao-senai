@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ModeToggle } from "@/components/mode-toggle";
 import Link from "next/link";
-import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ export default function CadastroPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [perfil, setPerfil] = useState("");
   
   const [error, setError] = useState("");
@@ -49,7 +51,7 @@ export default function CadastroPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome,
-          email,
+          email: email.trim().toLowerCase(),
           senha: password,
           perfil,
         }),
@@ -74,77 +76,128 @@ export default function CadastroPage() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#F8F9FA] dark:bg-neutral-950 font-sans transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-[#F8F9FA] dark:bg-neutral-950 font-sans transition-colors duration-300 relative">
       
+      {/* Botão de Trocar Tema (Topo Direito) */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <span className="text-xs text-gray-500 dark:text-neutral-400 hidden sm:inline">Tema:</span>
+        <ModeToggle />
+      </div>
+
       {/* MAIN CONTENT */}
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white dark:bg-neutral-900 shadow-md rounded-md overflow-hidden my-8 transition-colors duration-300">
-          <div className="p-10 space-y-8">
-            <h1 className="text-center text-2xl font-bold text-gray-800 dark:text-neutral-100 tracking-tight">
+        <div className="w-full max-w-md bg-white dark:bg-neutral-900 shadow-lg rounded-xl overflow-hidden my-8 border border-gray-200/80 dark:border-neutral-800 transition-colors duration-300">
+          
+          {/* Header do Card com Logo SENAI */}
+          <div className="bg-[#FF0000] py-6 px-8 flex flex-col items-center justify-center text-white relative">
+            <div className="flex items-center gap-3">
+              <span className="font-black italic text-4xl tracking-wider">SENAI</span>
+            </div>
+            <span className="text-xs font-medium opacity-90 tracking-wide mt-1 uppercase">
+              Gestão Docente & Turmas
+            </span>
+          </div>
+
+          <div className="p-8 space-y-6">
+            <h2 className="text-center text-xl font-bold text-gray-800 dark:text-neutral-100 tracking-tight">
               Criar Conta
-            </h1>
+            </h2>
             
             <form onSubmit={handleCadastro} className="space-y-4">
               <div className="space-y-3">
-                <Input 
-                  id="nome" 
-                  type="text" 
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  placeholder="Nome Completo" 
-                  required
-                  className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-neutral-600 rounded-sm h-12 px-4 shadow-none text-gray-700 dark:text-neutral-200 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
-                />
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1 block">
+                    Nome Completo
+                  </label>
+                  <Input 
+                    id="nome" 
+                    type="text" 
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Seu Nome Completo" 
+                    required
+                    className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
+                  />
+                </div>
 
-                <Input 
-                  id="email" 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="E-mail" 
-                  required
-                  className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-neutral-600 rounded-sm h-12 px-4 shadow-none text-gray-700 dark:text-neutral-200 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
-                />
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1 block">
+                    E-mail Institucional (@sp.senai.br)
+                  </label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu.nome@sp.senai.br" 
+                    required
+                    className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
+                  />
+                </div>
                 
-                <Input 
-                  id="password" 
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Senha" 
-                  required
-                  className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-neutral-600 rounded-sm h-12 px-4 shadow-none text-gray-700 dark:text-neutral-200 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
-                />
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1 block">
+                    Senha
+                  </label>
+                  <div className="relative">
+                    <Input 
+                      id="password" 
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Sua senha de acesso" 
+                      required
+                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 pl-4 pr-11 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 w-full"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors focus:outline-none"
+                      title={showPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5 text-gray-500 dark:text-neutral-400" />
+                      ) : (
+                        <Eye className="w-5 h-5 text-gray-500 dark:text-neutral-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
 
-                <Select value={perfil} onValueChange={(val) => val && setPerfil(val)} required>
-                  <SelectTrigger className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus:ring-0 rounded-sm h-12 px-4 shadow-none text-gray-700 dark:text-neutral-200">
-                    <SelectValue placeholder="Selecione seu Perfil" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-800 dark:text-neutral-200">
-                    <SelectItem value="DOCENTE">Docente</SelectItem>
-                    <SelectItem value="COORDENADOR">Gestão (Coordenador)</SelectItem>
-                    <SelectItem value="OPP">Orientador (OPP)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1 block">
+                    Perfil de Acesso
+                  </label>
+                  <Select value={perfil} onValueChange={(val) => val && setPerfil(val)} required>
+                    <SelectTrigger className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus:ring-1 focus:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100">
+                      <SelectValue placeholder="Selecione seu Perfil" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-800 dark:text-neutral-200">
+                      <SelectItem value="DOCENTE">Docente</SelectItem>
+                      <SelectItem value="COORDENADOR">Gestão (Coordenador)</SelectItem>
+                      <SelectItem value="OPP">Orientador (OPP)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {error && (
-                <div className="text-sm text-[#FF0000] font-medium text-center">
+                <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded-md text-xs text-[#FF0000] dark:text-red-400 font-medium text-center animate-in fade-in">
                   {error}
                 </div>
               )}
               
               {success && (
-                <div className="text-sm text-green-600 dark:text-green-500 font-medium text-center">
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-md text-xs text-emerald-700 dark:text-emerald-300 font-medium text-center animate-in fade-in">
                   {success}
                 </div>
               )}
 
-              <div className="pt-4">
+              <div className="pt-2">
                 <Button 
                   type="submit" 
                   disabled={isLoading} 
-                  className="w-full bg-[#FF0000] hover:bg-[#CC0000] text-white h-12 rounded-sm font-semibold transition-colors shadow-none"
+                  className="w-full bg-[#FF0000] hover:bg-[#CC0000] text-white h-12 rounded-md font-semibold transition-all shadow-sm"
                 >
                   {isLoading ? "Criando conta..." : "Cadastrar"}
                 </Button>
@@ -152,9 +205,9 @@ export default function CadastroPage() {
 
             </form>
             
-            <div className="text-center text-sm pt-4 border-t border-gray-100 dark:border-neutral-800">
-              <span className="text-gray-500 dark:text-neutral-400">Já possui uma conta?</span>{" "}
-              <Link href="/login" className="text-[#FF0000] font-semibold hover:underline">
+            <div className="text-center pt-4 border-t border-gray-100 dark:border-neutral-800">
+              <span className="text-xs text-gray-500 dark:text-neutral-400">Já possui uma conta?</span>{" "}
+              <Link href="/login" className="text-[#FF0000] text-xs font-semibold hover:underline">
                 Faça login
               </Link>
             </div>
