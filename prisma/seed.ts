@@ -1,15 +1,17 @@
 import 'dotenv/config';
 import { PrismaClient } from '../src/generated/prisma/client';
 import bcrypt from 'bcryptjs';
-import { PrismaLibSql } from '@prisma/adapter-libsql';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
 
-const adapter = new PrismaLibSql({ url: process.env.DATABASE_URL || 'file:dev.db' });
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('Iniciando o seed do banco de dados...');
+  console.log('Iniciando o seed do banco de dados PostgreSQL (Neon)...');
 
-  // Limpar dados existentes (cuidado em produção, mas ideal para SQLite local)
+  // Limpar dados existentes
   await prisma.atribuicao.deleteMany();
   await prisma.turma.deleteMany();
   await prisma.docenteUC.deleteMany();
@@ -71,7 +73,7 @@ async function main() {
   });
   console.log(`✅ Unidades Curriculares cadastradas.`);
 
-  console.log('🚀 Seed concluído com sucesso!');
+  console.log('🚀 Seed no Neon Postgres concluído com sucesso!');
 }
 
 main()
@@ -81,4 +83,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
