@@ -112,18 +112,18 @@ async function migrateAndSeed() {
   const coordId = 'coord-admin-001';
   await sql`
     INSERT INTO "Usuario" ("id", "nome", "email", "senha", "perfil", "ativo", "updatedAt")
-    VALUES (${coordId}, 'Coordenador SENAI', 'coordenador@senai.br', ${senhaHash}, 'COORDENADOR', true, NOW())
-    ON CONFLICT ("email") DO UPDATE SET "senha" = ${senhaHash};
+    VALUES (${coordId}, 'Coordenador SENAI', 'coordenador@sp.senai.br', ${senhaHash}, 'COORDENADOR', true, NOW())
+    ON CONFLICT ("id") DO UPDATE SET "email" = 'coordenador@sp.senai.br', "senha" = ${senhaHash};
   `;
-  console.log('✅ Usuário Coordenador criado/atualizado no Neon: coordenador@senai.br | senha: senai123');
+  console.log('✅ Usuário Coordenador criado/atualizado no Neon: coordenador@sp.senai.br | senha: senai123');
 
   const oppId = 'opp-orientador-001';
   await sql`
     INSERT INTO "Usuario" ("id", "nome", "email", "senha", "perfil", "ativo", "updatedAt")
-    VALUES (${oppId}, 'Orientador TI', 'opp@senai.br', ${senhaHash}, 'OPP', true, NOW())
-    ON CONFLICT ("email") DO UPDATE SET "senha" = ${senhaHash};
+    VALUES (${oppId}, 'Orientador TI', 'opp@sp.senai.br', ${senhaHash}, 'OPP', true, NOW())
+    ON CONFLICT ("id") DO UPDATE SET "email" = 'opp@sp.senai.br', "senha" = ${senhaHash};
   `;
-  console.log('✅ Usuário OPP criado/atualizado no Neon: opp@senai.br | senha: senai123');
+  console.log('✅ Usuário OPP criado/atualizado no Neon: opp@sp.senai.br | senha: senai123');
 
   // 3. Criar Áreas Iniciais
   const areaTiId = 'area-ti-001';

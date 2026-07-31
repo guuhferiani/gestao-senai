@@ -26,7 +26,7 @@ async function main() {
   const coordenador = await prisma.usuario.create({
     data: {
       nome: 'Coordenador SENAI',
-      email: 'coordenador@senai.br',
+      email: 'coordenador@sp.senai.br',
       senha: senhaHash,
       perfil: 'COORDENADOR',
       ativo: true,
@@ -38,7 +38,7 @@ async function main() {
   const opp = await prisma.usuario.create({
     data: {
       nome: 'Orientador TI',
-      email: 'opp@senai.br',
+      email: 'opp@sp.senai.br',
       senha: senhaHash,
       perfil: 'OPP',
       ativo: true,
