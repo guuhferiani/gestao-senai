@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { Pool } from 'pg'
+import { PrismaClient } from '../generated/prisma'
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+import Database from 'better-sqlite3'
 
-const connectionString = `${process.env.DATABASE_URL || "postgres://dummy:dummy@localhost/dummy"}`
-
-const pool = new Pool({ connectionString })
-const adapter = new PrismaPg(pool)
+const db = new Database('./prisma/dev.db')
+const adapter = new PrismaBetterSqlite3(db)
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
