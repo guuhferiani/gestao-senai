@@ -13,6 +13,15 @@ export async function POST(req: Request) {
       );
     }
 
+    // Validação estrita do domínio institucional SENAI SP
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@sp.senai.br")) {
+      return NextResponse.json(
+        { error: "Apenas e-mails institucionais do SENAI (@sp.senai.br) são permitidos para cadastro." },
+        { status: 400 }
+      );
+    }
+
     // Verifica se o usuário já existe
     const userExists = await prisma.usuario.findUnique({
       where: { email },
