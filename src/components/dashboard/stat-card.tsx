@@ -17,8 +17,8 @@ export function StatCard({ title, value, icon: Icon, description, trend }: StatC
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-        <div className="p-2 bg-red-50 rounded-md">
-          <Icon className="h-5 w-5 text-[#FF0000]" />
+        <div className="p-2 bg-red-50 dark:bg-red-950/40 rounded-md">
+          <Icon className="h-5 w-5 text-[#D31900]" />
         </div>
       </div>
       

@@ -66,7 +66,7 @@ export default function LoginPage() {
           <div className="w-full bg-white dark:bg-neutral-900 shadow-lg rounded-xl overflow-hidden border border-gray-200/80 dark:border-neutral-800 transition-colors duration-300">
             
             {/* Header do Card com Logo SENAI */}
-            <div className="bg-[#FF0000] py-6 px-8 flex flex-col items-center justify-center text-white relative">
+            <div className="bg-[#D31900] py-6 px-8 flex flex-col items-center justify-center text-white relative">
               <div className="flex items-center gap-3">
                 <span className="font-black italic text-4xl tracking-wider">SENAI</span>
               </div>
@@ -93,7 +93,7 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="coordenador@sp.senai.br" 
                       required
-                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
+                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#D31900] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
                     />
                   </div>
                   
@@ -109,7 +109,7 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Sua senha" 
                         required
-                        className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 pl-4 pr-11 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 w-full"
+                        className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#D31900] rounded-md h-12 pl-4 pr-11 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 w-full"
                       />
                       <button
                         type="button"
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded-md text-xs text-[#FF0000] dark:text-red-400 font-medium text-center animate-in fade-in">
+                  <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded-md text-xs text-[#D31900] dark:text-red-400 font-medium text-center animate-in fade-in">
                     {error}
                   </div>
                 )}
@@ -138,7 +138,7 @@ export default function LoginPage() {
                     <Button 
                       type="submit" 
                       disabled={isLoading} 
-                      className="bg-[#FF0000] hover:bg-[#CC0000] text-white h-11 px-8 rounded-md font-semibold transition-all shadow-sm"
+                      className="bg-[#D31900] hover:bg-[#B71500] text-white h-11 px-8 rounded-md font-semibold transition-all shadow-sm"
                     >
                       {isLoading ? "Entrando..." : "Entrar"}
                     </Button>
@@ -155,13 +155,13 @@ export default function LoginPage() {
 
                 <div className="flex justify-end mt-1">
                   <Dialog>
-                    <DialogTrigger className="text-xs font-medium text-[#FF0000] hover:underline transition-all">
+                    <DialogTrigger className="text-xs font-medium text-[#D31900] hover:underline transition-all">
                       Esqueceu a senha?
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px] bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-gray-800 dark:text-neutral-100 font-bold">
-                          <RotateCcw className="w-5 h-5 text-[#FF0000]" />
+                          <RotateCcw className="w-5 h-5 text-[#D31900]" />
                           Recuperar Senha
                         </DialogTitle>
                         <DialogDescription className="text-gray-500 dark:text-neutral-400 text-xs">
@@ -180,7 +180,7 @@ export default function LoginPage() {
                       </div>
                       <div className="flex justify-end gap-3">
                         <DialogClose render={<Button variant="outline" className="border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-300">Cancelar</Button>} />
-                        <Button className="bg-[#FF0000] hover:bg-[#CC0000] text-white font-semibold">
+                        <Button className="bg-[#D31900] hover:bg-[#B71500] text-white font-semibold">
                           Enviar Código
                         </Button>
                       </div>
@@ -192,7 +192,7 @@ export default function LoginPage() {
               <div className="text-center pt-2 border-t border-gray-100 dark:border-neutral-800">
                 <span className="text-xs text-gray-500 dark:text-neutral-400">
                   Ainda não tem conta?{" "}
-                  <Link href="/cadastro" className="text-[#FF0000] font-semibold hover:underline">
+                  <Link href="/cadastro" className="text-[#D31900] font-semibold hover:underline">
                     Cadastre-se
                   </Link>
                 </span>

@@ -35,7 +35,7 @@ export function Sidebar() {
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Header Logo SENAI */}
-      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-neutral-800 bg-[#FF0000] text-white overflow-hidden transition-all duration-300">
+      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-neutral-800 bg-[#D31900] text-white overflow-hidden transition-all duration-300">
         <span className="font-black text-xl shrink-0 w-8 text-center">S</span>
         <span 
           className={cn(
@@ -59,12 +59,12 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center rounded-lg px-3 py-2.5 transition-all duration-200 group relative",
                     isActive 
-                      ? "bg-red-50 dark:bg-red-950/40 text-[#FF0000] font-semibold" 
+                      ? "bg-red-50 dark:bg-red-950/40 text-[#D31900] font-semibold" 
                       : "text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-neutral-100"
                   )}
                   title={!isExpanded ? item.name : undefined}
                 >
-                  <item.icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-105", isActive ? "text-[#FF0000]" : "text-gray-500 dark:text-neutral-400 group-hover:text-gray-700 dark:group-hover:text-neutral-200")} />
+                  <item.icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-105", isActive ? "text-[#D31900]" : "text-gray-500 dark:text-neutral-400 group-hover:text-gray-700 dark:group-hover:text-neutral-200")} />
                   <span className={cn(
                     "whitespace-nowrap transition-all duration-300 ease-out overflow-hidden ml-3 text-sm",
                     isExpanded ? "opacity-100 max-w-[200px]" : "opacity-0 max-w-0"

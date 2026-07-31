@@ -34,7 +34,7 @@ export function Topbar() {
               {userPerfil}
             </span>
           </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/60 text-[#FF0000] font-bold text-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/60 text-[#D31900] font-bold text-sm">
             {userName.charAt(0).toUpperCase()}
           </div>
         </div>
