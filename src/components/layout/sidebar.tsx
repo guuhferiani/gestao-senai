@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Áreas e UCs', href: '/areas', icon: BookOpen },
   { name: 'Corpo Docente', href: '/docentes', icon: Users },
   { name: 'Turmas e Ocupação', href: '/turmas', icon: Calendar },
