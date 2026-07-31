@@ -16,8 +16,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("E-mail e senha são obrigatórios");
         }
 
+        const normalizedEmail = credentials.email.trim().toLowerCase();
         const usuario = await prisma.usuario.findUnique({
-          where: { email: credentials.email }
+          where: { email: normalizedEmail }
         });
 
         if (!usuario || !usuario.ativo) {
