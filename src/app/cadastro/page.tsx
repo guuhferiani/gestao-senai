@@ -91,7 +91,7 @@ export default function CadastroPage() {
           <div className="w-full bg-white dark:bg-neutral-900 shadow-lg rounded-xl overflow-hidden border border-gray-200/80 dark:border-neutral-800 transition-colors duration-300">
             
             {/* Header do Card com Logo SENAI */}
-            <div className="bg-[#FF0000] py-6 px-8 flex flex-col items-center justify-center text-white relative">
+            <div className="bg-[#D31900] py-6 px-8 flex flex-col items-center justify-center text-white relative">
               <div className="flex items-center gap-3">
                 <span className="font-black italic text-4xl tracking-wider">SENAI</span>
               </div>
@@ -118,7 +118,7 @@ export default function CadastroPage() {
                       onChange={(e) => setNome(e.target.value)}
                       placeholder="Seu Nome Completo" 
                       required
-                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
+                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#D31900] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
                     />
                   </div>
 
@@ -133,7 +133,7 @@ export default function CadastroPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="seu.nome@sp.senai.br" 
                       required
-                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
+                      className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#D31900] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
                     />
                   </div>
                   
@@ -149,7 +149,7 @@ export default function CadastroPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Sua senha de acesso" 
                         required
-                        className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#FF0000] rounded-md h-12 pl-4 pr-11 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 w-full"
+                        className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-1 focus-visible:ring-[#D31900] rounded-md h-12 pl-4 pr-11 shadow-none text-gray-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 w-full"
                       />
                       <button
                         type="button"
@@ -171,7 +171,7 @@ export default function CadastroPage() {
                       Perfil de Acesso
                     </label>
                     <Select value={perfil} onValueChange={(val) => val && setPerfil(val)} required>
-                      <SelectTrigger className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus:ring-1 focus:ring-[#FF0000] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100">
+                      <SelectTrigger className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus:ring-1 focus:ring-[#D31900] rounded-md h-12 px-4 shadow-none text-gray-800 dark:text-neutral-100">
                         <SelectValue placeholder="Selecione seu Perfil" />
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-800 dark:text-neutral-200">
@@ -184,7 +184,7 @@ export default function CadastroPage() {
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded-md text-xs text-[#FF0000] dark:text-red-400 font-medium text-center animate-in fade-in">
+                  <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded-md text-xs text-[#D31900] dark:text-red-400 font-medium text-center animate-in fade-in">
                     {error}
                   </div>
                 )}
@@ -199,7 +199,7 @@ export default function CadastroPage() {
                   <Button 
                     type="submit" 
                     disabled={isLoading} 
-                    className="w-full bg-[#FF0000] hover:bg-[#CC0000] text-white h-12 rounded-md font-semibold transition-all shadow-sm"
+                    className="w-full bg-[#D31900] hover:bg-[#B71500] text-white h-12 rounded-md font-semibold transition-all shadow-sm"
                   >
                     {isLoading ? "Criando conta..." : "Cadastrar"}
                   </Button>
@@ -209,7 +209,7 @@ export default function CadastroPage() {
               
               <div className="text-center pt-4 border-t border-gray-100 dark:border-neutral-800">
                 <span className="text-xs text-gray-500 dark:text-neutral-400">Já possui uma conta?</span>{" "}
-                <Link href="/login" className="text-[#FF0000] text-xs font-semibold hover:underline">
+                <Link href="/login" className="text-[#D31900] text-xs font-semibold hover:underline">
                   Faça login
                 </Link>
               </div>

@@ -280,7 +280,7 @@ export default function AreasPage() {
 
           <Button 
             onClick={() => handleOpenUcModal()} 
-            className="bg-[#FF0000] hover:bg-[#CC0000] text-white gap-2 font-semibold shadow-sm"
+            className="bg-[#D31900] hover:bg-[#B71500] text-white gap-2 font-semibold shadow-sm"
           >
             <FilePlus className="w-4 h-4" />
             Nova UC
@@ -344,7 +344,7 @@ export default function AreasPage() {
       {/* Content */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500 dark:text-neutral-400">
-          <Loader2 className="w-8 h-8 animate-spin text-[#FF0000]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#D31900]" />
           <span className="text-sm">Carregando estrutura acadêmica...</span>
         </div>
       ) : activeTab === 'areas' ? (
@@ -354,7 +354,7 @@ export default function AreasPage() {
             <Layers className="w-12 h-12 mx-auto text-gray-400 dark:text-neutral-600" />
             <p className="font-medium text-base text-gray-700 dark:text-neutral-300">Nenhuma Área Tecnológica encontrada</p>
             <p className="text-xs">Cadastre a primeira Área Tecnológica para começar a estruturar os cursos.</p>
-            <Button onClick={() => handleOpenAreaModal()} className="bg-[#FF0000] hover:bg-[#CC0000] text-white text-xs mt-2">
+            <Button onClick={() => handleOpenAreaModal()} className="bg-[#D31900] hover:bg-[#B71500] text-white text-xs mt-2">
               + Criar Área Tecnológica
             </Button>
           </div>
@@ -369,7 +369,7 @@ export default function AreasPage() {
                   {/* Card Header */}
                   <div className="p-5 border-b border-gray-100 dark:border-neutral-800/60 flex items-center justify-between bg-gray-50/50 dark:bg-neutral-900/50">
                     <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-[#FF0000]">
+                      <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-[#D31900]">
                         <Layers className="w-5 h-5" />
                       </div>
                       <div>
@@ -404,7 +404,7 @@ export default function AreasPage() {
                       <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-500">UCs Vinculadas</span>
                       <button
                         onClick={() => handleOpenUcModal(undefined, area.id)}
-                        className="text-xs font-medium text-[#FF0000] hover:underline flex items-center gap-1"
+                        className="text-xs font-medium text-[#D31900] hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3 h-3" /> Add UC
                       </button>
@@ -451,7 +451,7 @@ export default function AreasPage() {
             <BookOpen className="w-12 h-12 mx-auto text-gray-400 dark:text-neutral-600" />
             <p className="font-medium text-base text-gray-700 dark:text-neutral-300">Nenhuma Unidade Curricular encontrada</p>
             <p className="text-xs">Cadastre a primeira UC vinculada a uma Área Tecnológica.</p>
-            <Button onClick={() => handleOpenUcModal()} className="bg-[#FF0000] hover:bg-[#CC0000] text-white text-xs mt-2">
+            <Button onClick={() => handleOpenUcModal()} className="bg-[#D31900] hover:bg-[#B71500] text-white text-xs mt-2">
               + Criar Unidade Curricular
             </Button>
           </div>
@@ -473,7 +473,7 @@ export default function AreasPage() {
                         {uc.nome}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 dark:bg-red-950/40 text-[#FF0000]">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 dark:bg-red-950/40 text-[#D31900]">
                           {uc.area?.nome || 'Não informada'}
                         </span>
                       </td>
@@ -509,7 +509,7 @@ export default function AreasPage() {
         <DialogContent className="sm:max-w-[425px] bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-neutral-100 font-bold text-lg flex items-center gap-2">
-              <FolderPlus className="w-5 h-5 text-[#FF0000]" />
+              <FolderPlus className="w-5 h-5 text-[#D31900]" />
               {editingArea ? 'Editar Área Tecnológica' : 'Nova Área Tecnológica'}
             </DialogTitle>
             <DialogDescription className="text-gray-500 dark:text-neutral-400 text-xs">
@@ -534,7 +534,7 @@ export default function AreasPage() {
 
             <DialogFooter className="gap-2 sm:gap-0 pt-2">
               <DialogClose render={<Button type="button" variant="outline" className="border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-300">Cancelar</Button>} />
-              <Button type="submit" disabled={isSubmitting || !areaNome.trim()} className="bg-[#FF0000] hover:bg-[#CC0000] text-white font-semibold">
+              <Button type="submit" disabled={isSubmitting || !areaNome.trim()} className="bg-[#D31900] hover:bg-[#B71500] text-white font-semibold">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : editingArea ? 'Salvar Alterações' : 'Criar Área'}
               </Button>
             </DialogFooter>
@@ -547,7 +547,7 @@ export default function AreasPage() {
         <DialogContent className="sm:max-w-[450px] bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-neutral-100 font-bold text-lg flex items-center gap-2">
-              <FilePlus className="w-5 h-5 text-[#FF0000]" />
+              <FilePlus className="w-5 h-5 text-[#D31900]" />
               {editingUc ? 'Editar Unidade Curricular' : 'Nova Unidade Curricular'}
             </DialogTitle>
             <DialogDescription className="text-gray-500 dark:text-neutral-400 text-xs">
@@ -578,7 +578,7 @@ export default function AreasPage() {
                 value={ucAreaId}
                 onChange={(e) => setUcAreaId(e.target.value)}
                 required
-                className="w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 px-3 py-2 text-sm text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#FF0000]"
+                className="w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 px-3 py-2 text-sm text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#D31900]"
               >
                 <option value="" disabled>Selecione uma área...</option>
                 {areas.map((a) => (
@@ -589,7 +589,7 @@ export default function AreasPage() {
 
             <DialogFooter className="gap-2 sm:gap-0 pt-2">
               <DialogClose render={<Button type="button" variant="outline" className="border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-300">Cancelar</Button>} />
-              <Button type="submit" disabled={isSubmitting || !ucNome.trim() || !ucAreaId} className="bg-[#FF0000] hover:bg-[#CC0000] text-white font-semibold">
+              <Button type="submit" disabled={isSubmitting || !ucNome.trim() || !ucAreaId} className="bg-[#D31900] hover:bg-[#B71500] text-[#FFFFFF] font-semibold">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : editingUc ? 'Salvar Alterações' : 'Criar UC'}
               </Button>
             </DialogFooter>

@@ -37,7 +37,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Visão Geral</h1>
-        <Button className="bg-[#FF0000] hover:bg-[#CC0000] text-white">
+        <Button className="bg-[#D31900] hover:bg-[#B71500] text-white">
           + Nova Turma
         </Button>
       </div>
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-200 flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">Turmas Recentes</h2>
-            <Link href="/turmas" className="text-sm text-[#FF0000] hover:underline font-medium">
+            <Link href="/turmas" className="text-sm text-[#D31900] hover:underline font-medium">
               Ver todas
             </Link>
           </div>
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-200 flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">Docentes Adicionados</h2>
-            <Link href="/docentes" className="text-sm text-[#FF0000] hover:underline font-medium">
+            <Link href="/docentes" className="text-sm text-[#D31900] hover:underline font-medium">
               Ver todos
             </Link>
           </div>
