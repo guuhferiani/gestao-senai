@@ -111,10 +111,8 @@ export default function LoginPage() {
 
               <div className="flex justify-end mt-1">
                 <Dialog>
-                  <DialogTrigger asChild>
-                    <button className="text-[13px] font-medium text-[#FF0000] hover:underline transition-all">
-                      Esqueceu a senha?
-                    </button>
+                  <DialogTrigger className="text-[13px] font-medium text-[#FF0000] hover:underline transition-all">
+                    Esqueceu a senha?
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px] bg-white dark:bg-neutral-900 border-none rounded-md">
                     <DialogHeader>
@@ -137,8 +135,8 @@ export default function LoginPage() {
                       </div>
                     </div>
                     <div className="flex justify-end gap-3">
-                      <DialogClose asChild>
-                        <Button variant="outline" className="border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-300">Cancelar</Button>
+                      <DialogClose render={<Button variant="outline" className="border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-300" />}>
+                        Cancelar
                       </DialogClose>
                       <Button className="bg-[#FF0000] hover:bg-[#CC0000] text-white">
                         Continuar

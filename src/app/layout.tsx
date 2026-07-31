@@ -28,7 +28,7 @@ export default function RootLayout({
       className={`${roboto.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex font-sans bg-[#F8F9FA] text-gray-900 overflow-hidden">
+      <body className="min-h-full flex font-sans bg-[#F8F9FA] dark:bg-neutral-950 text-gray-900 dark:text-neutral-100 overflow-hidden transition-colors">
         <SessionProvider>
           <ThemeProvider
             attribute="class"
@@ -38,10 +38,10 @@ export default function RootLayout({
           >
             <Sidebar />
             
-            <div className="flex flex-col flex-1 h-screen overflow-hidden ml-16 hover:ml-16 transition-all duration-300">
+            <div className="flex flex-col flex-1 h-screen overflow-hidden ml-16 transition-all duration-300">
               <Topbar />
               
-              <main className="flex-1 overflow-y-auto p-6">
+              <main className="flex-1 overflow-y-auto bg-[#F8F9FA] dark:bg-neutral-950 transition-colors">
                 {children}
               </main>
             </div>

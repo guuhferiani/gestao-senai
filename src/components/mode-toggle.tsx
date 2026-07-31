@@ -14,13 +14,13 @@ export function ModeToggle() {
 
   return (
     <Button 
-      variant="outline" 
+      variant="ghost" 
       size="icon" 
       onClick={toggleTheme}
-      className="rounded-full bg-white text-neutral-900 border-none shadow-md hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-700 h-12 w-12"
+      className="rounded-full text-gray-500 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors h-9 w-9"
     >
-      <Sun className="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
       <span className="sr-only">Trocar tema</span>
     </Button>
   )

@@ -110,7 +110,7 @@ export default function CadastroPage() {
                   className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-neutral-600 rounded-sm h-12 px-4 shadow-none text-gray-700 dark:text-neutral-200 placeholder:text-gray-400 dark:placeholder:text-neutral-500"
                 />
 
-                <Select value={perfil} onValueChange={setPerfil} required>
+                <Select value={perfil} onValueChange={(val) => val && setPerfil(val)} required>
                   <SelectTrigger className="bg-[#F1F3F5] dark:bg-neutral-800 border-transparent focus:ring-0 rounded-sm h-12 px-4 shadow-none text-gray-700 dark:text-neutral-200">
                     <SelectValue placeholder="Selecione seu Perfil" />
                   </SelectTrigger>
