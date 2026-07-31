@@ -3,8 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
+import { AppShell } from "@/components/layout/app-shell";
 
 const roboto = Roboto({
   weight: ['400', '500', '700', '900'],
@@ -36,16 +35,9 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-            <Sidebar />
-            
-            <div className="flex flex-col flex-1 h-screen overflow-hidden ml-16 transition-all duration-300">
-              <Topbar />
-              
-              <main className="flex-1 overflow-y-auto bg-[#F8F9FA] dark:bg-neutral-950 transition-colors">
-                {children}
-              </main>
-            </div>
-            
+            <AppShell>
+              {children}
+            </AppShell>
           </ThemeProvider>
         </SessionProvider>
       </body>
