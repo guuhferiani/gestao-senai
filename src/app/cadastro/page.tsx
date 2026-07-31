@@ -68,18 +68,8 @@ export default function CadastroPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA] dark:bg-neutral-950 font-sans transition-colors duration-300">
+    <div className="h-full flex flex-col bg-[#F8F9FA] dark:bg-neutral-950 font-sans transition-colors duration-300">
       
-      {/* HEADER */}
-      <header className="flex h-20 w-full bg-white dark:bg-neutral-900 shadow-sm relative overflow-hidden border-t-[4px] border-[#FF0000] transition-colors duration-300">
-        <div 
-          className="absolute top-0 left-0 bottom-0 bg-[#FF0000] flex items-center justify-center z-10" 
-          style={{ width: '320px', clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
-        >
-          <Image src="/senai-logo.svg" alt="SENAI" width={220} height={70} className="w-auto h-12 mr-8" priority />
-        </div>
-      </header>
-
       {/* MAIN CONTENT */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white dark:bg-neutral-900 shadow-md rounded-md overflow-hidden my-8 transition-colors duration-300">
