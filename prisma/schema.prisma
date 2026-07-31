@@ -1,9 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 // -----------------------------------------------------------------------------
@@ -14,7 +15,7 @@ model Usuario {
   nome      String
   email     String   @unique
   senha     String
-  perfil    Perfil   @default(DOCENTE)
+  perfil    String   @default("DOCENTE") // DOCENTE, COORDENADOR, OPP
   ativo     Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -23,11 +24,11 @@ model Usuario {
   docente Docente?
 }
 
-enum Perfil {
-  COORDENADOR
-  OPP
-  DOCENTE
-}
+// enum Perfil {
+//   COORDENADOR
+//   OPP
+//   DOCENTE
+// }
 
 // -----------------------------------------------------------------------------
 // Estrutura Acadêmica (Áreas e UCs)
@@ -110,14 +111,14 @@ model Turma {
   nome             String
   areaId           String
   oppResponsavelId String? // ID do Usuario com perfil OPP
-  tipoCurso        TipoCurso
+  tipoCurso        String // TECNICO, CAI, FIC
   dataInicio       DateTime
   dataTermino      DateTime
   aulasSemanais    Int
   totalAulas       Int
 
   diasSemana String // Ex: "Seg,Qua,Sex"
-  periodo    Periodo
+  periodo    String // MANHA, TARDE, NOITE, INTEGRAL
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -126,18 +127,18 @@ model Turma {
   atribuicoes Atribuicao[]
 }
 
-enum TipoCurso {
-  TECNICO
-  CAI
-  FIC
-}
+// enum TipoCurso {
+//   TECNICO
+//   CAI
+//   FIC
+// }
 
-enum Periodo {
-  MANHA
-  TARDE
-  NOITE
-  INTEGRAL
-}
+// enum Periodo {
+//   MANHA
+//   TARDE
+//   NOITE
+//   INTEGRAL
+// }
 
 // Atribuição de uma UC de uma Turma a um Docente num horário específico
 model Atribuicao {
