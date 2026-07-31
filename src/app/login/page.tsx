@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Mail, RotateCcw, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,12 +66,17 @@ export default function LoginPage() {
           {/* Card de Login */}
           <div className="w-full bg-white dark:bg-neutral-900 shadow-lg rounded-xl overflow-hidden border border-gray-200/80 dark:border-neutral-800 transition-colors duration-300">
             
-            {/* Header do Card com Logo SENAI */}
-            <div className="bg-[#D31900] py-6 px-8 flex flex-col items-center justify-center text-white relative">
-              <div className="flex items-center gap-3">
-                <span className="font-black italic text-4xl tracking-wider">SENAI</span>
-              </div>
-              <span className="text-xs font-medium opacity-90 tracking-wide mt-1 uppercase">
+            {/* Header do Card com Logo Oficial SENAI */}
+            <div className="bg-white dark:bg-neutral-900 border-b border-gray-100 dark:border-neutral-800 py-6 px-8 flex flex-col items-center justify-center relative">
+              <Image 
+                src="/senai-logo.svg" 
+                alt="SENAI" 
+                width={150} 
+                height={48} 
+                priority 
+                className="h-10 w-auto object-contain"
+              />
+              <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 tracking-wider mt-3 uppercase">
                 Gestão Docente & Turmas
               </span>
             </div>

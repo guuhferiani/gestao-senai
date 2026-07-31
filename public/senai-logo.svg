@@ -3,7 +3,7 @@
 <svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 150.3 50" style="enable-background:new 0 0 150.3 50;" xml:space="preserve">
 <style type="text/css">
-	.st0{clip-path:url(#SVGID_00000023983815324687491830000007199391736252257694_);fill:#FF0000;}
+		.st0{clip-path:url(#SVGID_00000023983815324687491830000007199391736252257694_);fill:#e30613;}
 	.st1{clip-path:url(#SVGID_00000023983815324687491830000007199391736252257694_);fill:#FFFFFF;}
 	.st2{clip-path:url(#SVGID_00000023983815324687491830000007199391736252257694_);}
 	
@@ -18,7 +18,7 @@
 			<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
 		</clipPath>
 		
-			<rect x="9.1" y="8.2" style="clip-path:url(#SVGID_00000137123638360226141170000004942831359464362425_);fill:#FF0000;" width="132" height="33.7"/>
+			<rect x="9.1" y="8.2" style="clip-path:url(#SVGID_00000137123638360226141170000004942831359464362425_);fill:#e30613;" width="132" height="33.7"/>
 		<path style="clip-path:url(#SVGID_00000137123638360226141170000004942831359464362425_);fill:#FFFFFF;" d="M9.1,37h7.1v-0.9H9.1
 			V37z M9.1,31.3h7.1v-0.9H9.1V31.3z M9.1,25.4h7.1v-0.9H9.1V25.4z M9.1,19.6h7.1v-0.9H9.1V19.6z M9.1,13.9h7.1v-0.9H9.1V13.9z"/>
 		<path style="clip-path:url(#SVGID_00000137123638360226141170000004942831359464362425_);fill:#FFFFFF;" d="M134.1,37h7v-0.9h-7
