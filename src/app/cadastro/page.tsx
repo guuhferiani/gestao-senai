@@ -31,6 +31,12 @@ export default function CadastroPage() {
     setError("");
     setSuccess("");
 
+    if (!email.trim().toLowerCase().endsWith("@sp.senai.br")) {
+      setError("Apenas e-mails institucionais do SENAI (@sp.senai.br) são permitidos para cadastro.");
+      setIsLoading(false);
+      return;
+    }
+
     if (!perfil) {
       setError("Por favor, selecione um perfil.");
       setIsLoading(false);
