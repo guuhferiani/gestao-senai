@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { signOut } from 'next-auth/react';
 
 const menuItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -80,7 +81,7 @@ export function Sidebar() {
       {/* Rodapé / Sair */}
       <div className="border-t border-gray-200 dark:border-neutral-800 p-2">
         <button
-          onClick={() => { /* signOut() */ }}
+          onClick={() => signOut({ callbackUrl: '/login' })}
           className={cn(
             "flex w-full items-center rounded-lg px-3 py-2.5 text-gray-600 dark:text-neutral-400 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-neutral-100"
           )}
