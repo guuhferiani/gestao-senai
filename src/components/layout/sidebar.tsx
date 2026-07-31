@@ -35,7 +35,7 @@ export function Sidebar() {
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Header Logo SENAI */}
-      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-neutral-800 bg-[#D31900] text-white overflow-hidden transition-all duration-300">
+      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-neutral-800 bg-[#e30613] text-white overflow-hidden transition-all duration-300">
         <span className="font-black text-xl shrink-0 w-8 text-center">S</span>
         <span 
           className={cn(
