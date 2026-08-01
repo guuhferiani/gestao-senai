@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bell, User, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, User, LogOut, ChevronDown } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export function Topbar() {
   const { data: session } = useSession();
@@ -67,12 +68,11 @@ export function Topbar() {
               {userName.charAt(0).toUpperCase()}
             </div>
 
-            {/* Ícone Chevron */}
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4 text-[#e30613]" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-[#e30613]" />
-            )}
+            {/* Ícone Chevron com Rotação Suave */}
+            <ChevronDown className={cn(
+              "h-4 w-4 text-[#e30613] transition-transform duration-300 ease-out group-hover:translate-y-0.5",
+              isOpen && "rotate-180 group-hover:translate-y-0"
+            )} />
           </button>
 
           {/* Card do Dropdown (Exatamente como a referência) */}
