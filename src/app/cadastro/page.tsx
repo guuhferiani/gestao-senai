@@ -88,8 +88,8 @@ export default function CadastroPage() {
             <ModeToggle />
           </div>
 
-          {/* Card de Cadastro */}
-          <div className="w-full bg-white dark:bg-neutral-900 shadow-lg rounded-xl overflow-hidden border border-gray-200/80 dark:border-neutral-800 transition-colors duration-300">
+          {/* Card de Cadastro com Sombreamento e Profundidade Elevada */}
+          <div className="w-full bg-white dark:bg-neutral-900 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.65)] rounded-2xl overflow-hidden border border-gray-200/90 dark:border-neutral-800 transition-colors duration-300">
             
             {/* Header do Card com Logo Oficial SENAI (Fundo Vermelho com Marca Inversa) */}
             <div className="bg-[#e30613] py-6 px-8 flex flex-col items-center justify-center relative text-white">
