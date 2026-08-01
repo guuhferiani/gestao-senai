@@ -9,6 +9,7 @@ import {
   Calendar,
   LogOut
 } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { signOut } from 'next-auth/react';
@@ -35,16 +36,25 @@ export function Sidebar() {
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Header Logo SENAI */}
-      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-neutral-800 bg-[#e30613] text-white overflow-hidden transition-all duration-300">
-        <span className="font-black text-xl shrink-0 w-8 text-center">S</span>
-        <span 
-          className={cn(
-            "font-bold text-lg whitespace-nowrap transition-all duration-300 ease-out overflow-hidden ml-1",
-            isExpanded ? "opacity-100 max-w-[150px]" : "opacity-0 max-w-0"
-          )}
-        >
-          ENAI
-        </span>
+      <div className="flex h-16 items-center border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-2 overflow-hidden transition-colors">
+        <div className="flex items-center justify-center w-full overflow-hidden">
+          <div className={cn(
+            "transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-center overflow-hidden h-10 rounded-md",
+            isExpanded ? "w-[160px]" : "w-10"
+          )}>
+            <Image 
+              src="/senai-logo.svg" 
+              alt="SENAI" 
+              width={140} 
+              height={44} 
+              priority
+              className={cn(
+                "h-8 w-auto transition-all duration-300 object-contain shrink-0",
+                !isExpanded && "max-w-none -translate-x-[24px]"
+              )}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Navegação */}
