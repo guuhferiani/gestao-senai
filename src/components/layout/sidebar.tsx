@@ -36,11 +36,11 @@ export function Sidebar() {
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Header Logo SENAI */}
-      <div className="flex h-16 items-center justify-center border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 overflow-hidden transition-colors">
+      <div className="flex h-16 items-center justify-center border-b border-red-700 bg-[#e30613] px-3 overflow-hidden transition-colors">
         {isExpanded ? (
           <div className="animate-in fade-in duration-200 flex items-center justify-center w-full">
             <Image 
-              src="/senai-logo.svg" 
+              src="/senai-logo-inverse.svg" 
               alt="SENAI Logo" 
               width={140} 
               height={44} 
@@ -51,7 +51,7 @@ export function Sidebar() {
         ) : (
           <div className="animate-in fade-in duration-200 flex items-center justify-center">
             <Image 
-              src="/senai-icon.svg" 
+              src="/senai-icon-inverse.svg" 
               alt="SENAI Icon" 
               width={40} 
               height={32} 
