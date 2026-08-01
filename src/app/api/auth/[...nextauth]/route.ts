@@ -17,17 +17,26 @@ export const authOptions: NextAuthOptions = {
         }
 
         const normalizedEmail = credentials.email.trim().toLowerCase();
-        const usuario = await prisma.usuario.findUnique({
-          where: { email: normalizedEmail }
-        });
+        
+        let usuario;
+        try {
+          usuario = await prisma.usuario.findUnique({
+            where: { email: normalizedEmail }
+          });
+        } catch (dbError) {
+          console.error("Erro de conexão ao buscar usuário no Prisma:", dbError);
+          throw new Error("Erro de conexão com o banco de dados");
+        }
 
         if (!usuario || !usuario.ativo) {
+          console.log(`Tentativa de login falhou: Usuário não encontrado ou inativo (${normalizedEmail})`);
           throw new Error("Usuário não encontrado ou inativo");
         }
 
         const isValid = await bcrypt.compare(credentials.password, usuario.senha);
 
         if (!isValid) {
+          console.log(`Tentativa de login falhou: Senha incorreta para (${normalizedEmail})`);
           throw new Error("Senha incorreta");
         }
 
