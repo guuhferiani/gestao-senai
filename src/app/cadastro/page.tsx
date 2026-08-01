@@ -91,17 +91,17 @@ export default function CadastroPage() {
           {/* Card de Cadastro */}
           <div className="w-full bg-white dark:bg-neutral-900 shadow-lg rounded-xl overflow-hidden border border-gray-200/80 dark:border-neutral-800 transition-colors duration-300">
             
-            {/* Header do Card com Logo Oficial SENAI */}
-            <div className="bg-white dark:bg-neutral-900 border-b border-gray-100 dark:border-neutral-800 py-6 px-8 flex flex-col items-center justify-center relative">
+            {/* Header do Card com Logo Oficial SENAI (Fundo Vermelho com Marca Inversa) */}
+            <div className="bg-[#e30613] py-6 px-8 flex flex-col items-center justify-center relative text-white">
               <Image 
-                src="/senai-logo.svg" 
+                src="/senai-logo-inverse.svg" 
                 alt="SENAI" 
-                width={150} 
-                height={48} 
+                width={160} 
+                height={50} 
                 priority 
-                className="h-10 w-auto object-contain"
+                className="h-10 w-auto object-contain drop-shadow-sm"
               />
-              <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 tracking-wider mt-3 uppercase">
+              <span className="text-[11px] font-semibold text-white/90 tracking-wider mt-3 uppercase">
                 Gestão Docente & Turmas
               </span>
             </div>
