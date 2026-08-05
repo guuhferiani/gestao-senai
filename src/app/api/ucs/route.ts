@@ -56,9 +56,29 @@ export async function POST(req: Request) {
       );
     }
 
+    const trimmedNome = nome.trim();
+
+    // Check duplicate name within the same area
+    const existingUc = await prisma.unidadeCurricular.findFirst({
+      where: {
+        areaId,
+        nome: {
+          equals: trimmedNome,
+          mode: 'insensitive'
+        }
+      }
+    });
+
+    if (existingUc) {
+      return NextResponse.json(
+        { error: `Já existe uma UC "${trimmedNome}" cadastrada na área "${areaExists.nome}".` },
+        { status: 400 }
+      );
+    }
+
     const newUc = await prisma.unidadeCurricular.create({
       data: {
-        nome: nome.trim(),
+        nome: trimmedNome,
         areaId,
       },
       include: {

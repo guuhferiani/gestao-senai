@@ -9,6 +9,9 @@ import {
   Pencil, 
   Trash2, 
   AlertTriangle,
+  AlertCircle,
+  BarChart2,
+  Filter,
   Loader2,
   FolderPlus,
   FilePlus,
@@ -53,6 +56,7 @@ export default function AreasPage() {
   const [ucs, setUcs] = useState<UnidadeCurricular[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAreaFilter, setSelectedAreaFilter] = useState<string>('ALL');
   const [activeTab, setActiveTab] = useState<'areas' | 'ucs'>('areas');
 
   // Modais State
@@ -232,13 +236,23 @@ export default function AreasPage() {
   }, [areas, searchTerm]);
 
   const filteredUcs = useMemo(() => {
-    if (!searchTerm.trim()) return ucs;
-    const term = searchTerm.toLowerCase();
-    return ucs.filter(uc => 
-      uc.nome.toLowerCase().includes(term) ||
-      uc.area?.nome.toLowerCase().includes(term)
-    );
-  }, [ucs, searchTerm]);
+    return ucs.filter(uc => {
+      const matchesArea = selectedAreaFilter === 'ALL' || uc.areaId === selectedAreaFilter;
+      const matchesSearch = !searchTerm.trim() || 
+        uc.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        uc.area?.nome.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesArea && matchesSearch;
+    });
+  }, [ucs, searchTerm, selectedAreaFilter]);
+
+  const areasSemUcsCount = useMemo(() => {
+    return areas.filter(a => !a.unidadesCurriculares || a.unidadesCurriculares.length === 0).length;
+  }, [areas]);
+
+  const mediaUcsPorArea = useMemo(() => {
+    if (areas.length === 0) return '0';
+    return (ucs.length / areas.length).toFixed(1);
+  }, [areas, ucs]);
 
   return (
     <div className="space-y-6">
@@ -265,7 +279,7 @@ export default function AreasPage() {
             Gestão de Áreas & UCs
           </h1>
           <p className="text-sm text-gray-500 dark:text-neutral-400">
-            Estrutura acadêmica de Áreas Tecnológicas e Unidades Curriculares da unidade.
+            Estrutura acadêmica de Áreas Tecnológicas e Unidades Curriculares da unidade SENAI.
           </p>
         </div>
 
@@ -280,7 +294,7 @@ export default function AreasPage() {
 
           <Button 
             onClick={() => handleOpenUcModal()} 
-            className="bg-[#D31900] hover:bg-[#B71500] text-white gap-2 font-semibold shadow-sm"
+            className="bg-[#e30613] hover:bg-[#b7040f] text-white gap-2 font-semibold shadow-sm"
           >
             <FilePlus className="w-4 h-4" />
             Nova UC
@@ -288,19 +302,31 @@ export default function AreasPage() {
         </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Metric Cards (4 Grid) */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Áreas Tecnológicas"
           value={areas.length}
           icon={Layers}
-          description="Áreas de especialização cadastradas"
+          description="Segmentos técnicos cadastrados"
         />
         <StatCard
-          title="Unidades Curriculares (UCs)"
+          title="Unidades Curriculares"
           value={ucs.length}
           icon={BookOpen}
-          description="Matérias e componentes curriculares"
+          description="Disciplinas ativas no sistema"
+        />
+        <StatCard
+          title="Média UCs / Área"
+          value={mediaUcsPorArea}
+          icon={BarChart2}
+          description="Média de disciplinas por segmento"
+        />
+        <StatCard
+          title="Áreas sem UCs"
+          value={areasSemUcsCount}
+          icon={AlertCircle}
+          description="Necessitam cadastro de UCs"
         />
       </div>
 
@@ -329,15 +355,33 @@ export default function AreasPage() {
           </button>
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-neutral-500" />
-          <Input
-            type="text"
-            placeholder="Buscar Área ou UC..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 h-10 text-sm"
-          />
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+          {activeTab === 'ucs' && (
+            <div className="relative w-full sm:w-56">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-neutral-500" />
+              <select
+                value={selectedAreaFilter}
+                onChange={(e) => setSelectedAreaFilter(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-md text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#e30613]"
+              >
+                <option value="ALL">Todas as Áreas</option>
+                {areas.map(a => (
+                  <option key={a.id} value={a.id}>{a.nome}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-neutral-500" />
+            <Input
+              type="text"
+              placeholder="Buscar Área ou UC..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 h-10 text-sm"
+            />
+          </div>
         </div>
       </div>
 
