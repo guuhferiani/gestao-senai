@@ -39,9 +39,28 @@ export async function POST(req: Request) {
       );
     }
 
+    const trimmedNome = nome.trim();
+
+    // Check duplicate name
+    const existingArea = await prisma.areaTecnologica.findFirst({
+      where: {
+        nome: {
+          equals: trimmedNome,
+          mode: 'insensitive'
+        }
+      }
+    });
+
+    if (existingArea) {
+      return NextResponse.json(
+        { error: `Já existe uma Área Tecnológica cadastrada com o nome "${trimmedNome}".` },
+        { status: 400 }
+      );
+    }
+
     const newArea = await prisma.areaTecnologica.create({
       data: {
-        nome: nome.trim(),
+        nome: trimmedNome,
       },
       include: {
         unidadesCurriculares: true,
