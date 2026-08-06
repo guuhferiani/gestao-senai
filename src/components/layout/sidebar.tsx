@@ -7,6 +7,7 @@ import {
   BookOpen, 
   Users, 
   Calendar,
+  ListChecks,
   LogOut
 } from 'lucide-react';
 import Image from 'next/image';
@@ -19,6 +20,7 @@ const menuItems = [
   { name: 'Áreas e UCs', href: '/areas', icon: BookOpen },
   { name: 'Corpo Docente', href: '/docentes', icon: Users },
   { name: 'Turmas e Ocupação', href: '/turmas', icon: Calendar },
+  { name: 'Checklist & Histórico', href: '/testes', icon: ListChecks },
 ];
 
 export function Sidebar() {
