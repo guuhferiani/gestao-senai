@@ -18,16 +18,7 @@ export async function PUT(
 
     const updatedArea = await prisma.areaTecnologica.update({
       where: { id },
-      data: { nome: nome.trim() },
-      include: {
-        unidadesCurriculares: true,
-        _count: {
-          select: {
-            unidadesCurriculares: true,
-            docentes: true,
-          }
-        }
-      }
+      data: { nome: nome.trim() }
     });
 
     return NextResponse.json(updatedArea);

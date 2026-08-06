@@ -61,19 +61,17 @@ export async function POST(req: Request) {
     const newArea = await prisma.areaTecnologica.create({
       data: {
         nome: trimmedNome,
-      },
-      include: {
-        unidadesCurriculares: true,
-        _count: {
-          select: {
-            unidadesCurriculares: true,
-            docentes: true,
-          }
-        }
       }
     });
 
-    return NextResponse.json(newArea, { status: 201 });
+    return NextResponse.json({
+      ...newArea,
+      unidadesCurriculares: [],
+      _count: {
+        unidadesCurriculares: 0,
+        docentes: 0,
+      }
+    }, { status: 201 });
   } catch (error) {
     console.error("Erro ao criar área tecnológica:", error);
     return NextResponse.json(
