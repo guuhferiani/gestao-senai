@@ -28,15 +28,6 @@ export async function PUT(
       data: {
         nome: nome.trim(),
         areaId,
-      },
-      include: {
-        area: true,
-        _count: {
-          select: {
-            docentesCompetentes: true,
-            atribuicoes: true
-          }
-        }
       }
     });
 

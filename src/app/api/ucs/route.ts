@@ -80,19 +80,14 @@ export async function POST(req: Request) {
       data: {
         nome: trimmedNome,
         areaId,
-      },
-      include: {
-        area: true,
-        _count: {
-          select: {
-            docentesCompetentes: true,
-            atribuicoes: true
-          }
-        }
       }
     });
 
-    return NextResponse.json(newUc, { status: 201 });
+    return NextResponse.json({
+      ...newUc,
+      area: areaExists,
+      _count: { docentesCompetentes: 0, atribuicoes: 0 }
+    }, { status: 201 });
   } catch (error) {
     console.error("Erro ao criar Unidade Curricular:", error);
     return NextResponse.json(
