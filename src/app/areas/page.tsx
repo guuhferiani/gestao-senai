@@ -21,6 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StatCard } from '@/components/dashboard/stat-card';
+import { CustomSelect } from '@/components/ui/custom-select';
 import {
   Dialog,
   DialogContent,
@@ -357,18 +358,16 @@ export default function AreasPage() {
 
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
           {activeTab === 'ucs' && (
-            <div className="relative w-full sm:w-56">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-neutral-500" />
-              <select
+            <div className="w-full sm:w-60">
+              <CustomSelect
                 value={selectedAreaFilter}
-                onChange={(e) => setSelectedAreaFilter(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-md text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#e30613]"
-              >
-                <option value="ALL">Todas as Áreas</option>
-                {areas.map(a => (
-                  <option key={a.id} value={a.id}>{a.nome}</option>
-                ))}
-              </select>
+                onChange={setSelectedAreaFilter}
+                icon={Layers}
+                options={[
+                  { value: 'ALL', label: 'Todas as Áreas Tecnológicas' },
+                  ...areas.map((a) => ({ value: a.id, label: a.nome })),
+                ]}
+              />
             </div>
           )}
 
@@ -616,19 +615,15 @@ export default function AreasPage() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-700 dark:text-neutral-300">
-                Área Tecnológica (Obrigatório)
+                Área Tecnológica <span className="text-red-500">*</span>
               </label>
-              <select
+              <CustomSelect
                 value={ucAreaId}
-                onChange={(e) => setUcAreaId(e.target.value)}
-                required
-                className="w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 px-3 py-2 text-sm text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#D31900]"
-              >
-                <option value="" disabled>Selecione uma área...</option>
-                {areas.map((a) => (
-                  <option key={a.id} value={a.id}>{a.nome}</option>
-                ))}
-              </select>
+                onChange={setUcAreaId}
+                icon={Layers}
+                placeholder="Selecione uma área..."
+                options={areas.map((a) => ({ value: a.id, label: a.nome }))}
+              />
             </div>
 
             <DialogFooter className="gap-2 sm:gap-0 pt-2">
