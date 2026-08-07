@@ -11,6 +11,7 @@ import {
   UserCog,
   BarChart3,
   Sparkles,
+  History,
   ListChecks,
   LogOut
 } from 'lucide-react';
@@ -28,6 +29,7 @@ const menuItems = [
   { name: 'Simulador de Demanda', href: '/simulador', icon: Sparkles },
   { name: 'Usuários & Acessos', href: '/usuarios', icon: UserCog },
   { name: 'Relatórios & Métricas', href: '/relatorios', icon: BarChart3 },
+  { name: 'Auditoria & Logs', href: '/auditoria', icon: History },
   { name: 'Checklist & Histórico', href: '/testes', icon: ListChecks },
 ];
 
