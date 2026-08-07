@@ -559,9 +559,24 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
     expectedResult: 'Recomendação quantitativa precisa (docentes CLT 40h vs Horistas) e relatório pronto para impressão.',
     completed: true,
   },
+
+  // 11. Central de Notificações Inteligentes
+  {
+    id: 'notif-1',
+    category: '11. Central de Notificações & Alertas',
+    iconName: 'Bell',
+    title: 'Badge Inteligente e Popover no Sino da Topbar',
+    description: 'Verificar a contagem de alertas ativos e abertura do popover suspenso com abas de severidade.',
+    testSteps: [
+      'Observar o sino na barra superior (Topbar)',
+      'Clicar no ícone de sino e verificar a lista de alertas'
+    ],
+    expectedResult: 'Popover abre exibindo as pendências em tempo real com links diretos de resolução em 1 clique.',
+    completed: true,
+  },
 ];
 
-const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v7';
+const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v8';
 
 export default function ChecklistPage() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
