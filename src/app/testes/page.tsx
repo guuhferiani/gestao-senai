@@ -574,9 +574,37 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
     expectedResult: 'Popover abre exibindo as pendências em tempo real com links diretos de resolução em 1 clique.',
     completed: true,
   },
+
+  // 12. Auditoria & Histórico de Ações
+  {
+    id: 'audit-1',
+    category: '12. Auditoria & Rastreabilidade de Logs',
+    iconName: 'History',
+    title: 'Rastreabilidade Cronológica e Linha do Tempo',
+    description: 'Auditar quem realizou atribuições de aulas, criação de turmas e alterações de segurança.',
+    testSteps: [
+      'Acessar /auditoria e navegar entre os modos Linha do Tempo e Tabela de Logs',
+      'Testar os filtros por módulo e a busca textual'
+    ],
+    expectedResult: 'Histórico completo exibido com operador responsável, timestamp e detalhes da alteração.',
+    completed: true,
+  },
+  {
+    id: 'audit-2',
+    category: '12. Auditoria & Rastreabilidade de Logs',
+    iconName: 'History',
+    title: 'Exportação de Logs para Excel (CSV)',
+    description: 'Baixar a planilha com todos os eventos de governança acadêmica.',
+    testSteps: [
+      'Clicar no botão "Exportar Logs (.CSV)"',
+      'Verificar o download da planilha estruturada com codificação UTF-8'
+    ],
+    expectedResult: 'Download automático de arquivo CSV pronto para auditoria da Direção.',
+    completed: true,
+  },
 ];
 
-const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v8';
+const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v9';
 
 export default function ChecklistPage() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);

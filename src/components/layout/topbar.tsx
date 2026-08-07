@@ -28,6 +28,8 @@ interface NotificacaoItem {
   tempo: string;
 }
 
+const READ_NOTIFS_KEY = 'senai_read_notifications_v1';
+
 export function Topbar() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -35,14 +37,26 @@ export function Topbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  // Alertas
+  // Alertas e IDs lidos
   const [notificacoes, setNotificacoes] = useState<NotificacaoItem[]>([]);
-  const [totalPendentes, setTotalPendentes] = useState(0);
+  const [readNotifIds, setReadNotifIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'todas' | 'criticas' | 'avisos'>('todas');
   const [loadingNotifs, setLoadingNotifs] = useState(false);
 
   const userName = session?.user?.name || 'Coordenador SENAI';
   const userPerfil = (session?.user as any)?.perfil || 'COORDENADOR';
+
+  // Carregar IDs lidos do localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(READ_NOTIFS_KEY);
+      if (saved) {
+        setReadNotifIds(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error('Erro ao ler notificações lidas:', e);
+    }
+  }, []);
 
   // Buscar notificações em tempo real
   const fetchNotificacoes = async () => {
@@ -52,7 +66,6 @@ export function Topbar() {
       if (res.ok) {
         const data = await res.json();
         setNotificacoes(data.notificacoes || []);
-        setTotalPendentes(data.totalPendentes || 0);
       }
     } catch (error) {
       console.error('Erro ao carregar notificações:', error);
@@ -63,7 +76,6 @@ export function Topbar() {
 
   useEffect(() => {
     fetchNotificacoes();
-    // Atualização suave a cada 30 segundos
     const interval = setInterval(fetchNotificacoes, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -82,9 +94,34 @@ export function Topbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleMarkAllRead = () => {
-    setTotalPendentes(0);
+  // Marcar uma notificação individual como lida ao clicar
+  const handleMarkAsRead = (id: string) => {
+    if (!readNotifIds.includes(id)) {
+      const updated = [...readNotifIds, id];
+      setReadNotifIds(updated);
+      try {
+        localStorage.setItem(READ_NOTIFS_KEY, JSON.stringify(updated));
+      } catch (e) {
+        console.error('Erro ao salvar notificação lida:', e);
+      }
+    }
+    setIsNotifOpen(false);
   };
+
+  // Marcar todas como lidas
+  const handleMarkAllRead = () => {
+    const allIds = notificacoes.map((n) => n.id);
+    setReadNotifIds(allIds);
+    try {
+      localStorage.setItem(READ_NOTIFS_KEY, JSON.stringify(allIds));
+    } catch (e) {
+      console.error('Erro ao marcar todas como lidas:', e);
+    }
+  };
+
+  // Notificações não lidas
+  const unreadNotificacoes = notificacoes.filter((n) => !readNotifIds.includes(n.id));
+  const unreadCount = unreadNotificacoes.filter((n) => n.tipo === 'danger' || n.tipo === 'warning').length;
 
   const filteredNotificacoes = notificacoes.filter((n) => {
     if (activeTab === 'criticas') return n.tipo === 'danger';
@@ -121,10 +158,10 @@ export function Topbar() {
           >
             <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
 
-            {/* Badge de Alertas com Pulso Suave */}
-            {totalPendentes > 0 && (
+            {/* Badge Dinâmico: diminui ao acessar cada notificação */}
+            {unreadCount > 0 && (
               <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#e30613] text-[9px] font-extrabold text-white shadow-xs animate-pulse">
-                {totalPendentes > 9 ? '9+' : totalPendentes}
+                {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
@@ -144,25 +181,27 @@ export function Topbar() {
                       Central de Alertas & Notificações
                     </h3>
                     <p className="text-[10px] text-gray-400">
-                      {totalPendentes} pendência(s) ativa(s) na unidade
+                      {unreadCount} não lida(s) de {notificacoes.length} no total
                     </p>
                   </div>
                 </div>
 
-                <button
-                  onClick={handleMarkAllRead}
-                  className="text-[10px] font-bold text-[#e30613] hover:underline flex items-center gap-0.5"
-                  title="Marcar todas como visualizadas"
-                >
-                  <Check className="w-3 h-3" /> Limpar
-                </button>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllRead}
+                    className="text-[10px] font-bold text-[#e30613] hover:underline flex items-center gap-0.5 cursor-pointer"
+                    title="Marcar todas como lidas"
+                  >
+                    <Check className="w-3 h-3" /> Limpar ({unreadCount})
+                  </button>
+                )}
               </div>
 
               {/* Abas de Severidade */}
               <div className="grid grid-cols-3 border-b border-gray-100 dark:border-neutral-800 text-[11px] font-semibold text-center bg-white dark:bg-neutral-900">
                 <button
                   onClick={() => setActiveTab('todas')}
-                  className={`py-2 border-b-2 transition-colors ${
+                  className={`py-2 border-b-2 transition-colors cursor-pointer ${
                     activeTab === 'todas'
                       ? 'border-[#e30613] text-[#e30613] font-bold'
                       : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-neutral-200'
@@ -172,7 +211,7 @@ export function Topbar() {
                 </button>
                 <button
                   onClick={() => setActiveTab('criticas')}
-                  className={`py-2 border-b-2 transition-colors ${
+                  className={`py-2 border-b-2 transition-colors cursor-pointer ${
                     activeTab === 'criticas'
                       ? 'border-red-600 text-red-600 font-bold'
                       : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-neutral-200'
@@ -182,7 +221,7 @@ export function Topbar() {
                 </button>
                 <button
                   onClick={() => setActiveTab('avisos')}
-                  className={`py-2 border-b-2 transition-colors ${
+                  className={`py-2 border-b-2 transition-colors cursor-pointer ${
                     activeTab === 'avisos'
                       ? 'border-amber-600 text-amber-600 font-bold'
                       : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-neutral-200'
@@ -198,44 +237,61 @@ export function Topbar() {
                   <div className="p-8 text-center text-gray-400 space-y-2">
                     <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500" />
                     <p className="font-bold text-gray-700 dark:text-neutral-300 text-xs">Tudo em dia!</p>
-                    <p className="text-[11px]">Nenhum alerta pendente para esta categoria.</p>
+                    <p className="text-[11px]">Nenhum alerta para esta categoria.</p>
                   </div>
                 ) : (
-                  filteredNotificacoes.map((n) => (
-                    <Link
-                      key={n.id}
-                      href={n.link}
-                      onClick={() => setIsNotifOpen(false)}
-                      className="p-3.5 block hover:bg-gray-50 dark:hover:bg-neutral-800/60 transition-colors group"
-                    >
-                      <div className="flex items-start gap-2.5">
-                        <div className="mt-0.5 shrink-0">
-                          {n.tipo === 'danger' && <XCircle className="w-4 h-4 text-red-600" />}
-                          {n.tipo === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
-                          {n.tipo === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                        </div>
+                  filteredNotificacoes.map((n) => {
+                    const isRead = readNotifIds.includes(n.id);
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="font-bold text-gray-900 dark:text-neutral-100 truncate text-xs group-hover:text-[#e30613] transition-colors">
-                              {n.titulo}
-                            </span>
-                            <span className="text-[9px] font-semibold text-gray-400 shrink-0">
-                              {n.tempo}
-                            </span>
+                    return (
+                      <Link
+                        key={n.id}
+                        href={n.link}
+                        onClick={() => handleMarkAsRead(n.id)}
+                        className={`p-3.5 block transition-colors group ${
+                          isRead
+                            ? 'bg-gray-50/40 dark:bg-neutral-900/40 opacity-60 hover:opacity-100'
+                            : 'bg-white dark:bg-neutral-900 hover:bg-gray-50 dark:hover:bg-neutral-800/60'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div className="mt-0.5 shrink-0">
+                            {n.tipo === 'danger' && <XCircle className="w-4 h-4 text-red-600" />}
+                            {n.tipo === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
+                            {n.tipo === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                           </div>
 
-                          <p className="text-[11px] text-gray-500 dark:text-neutral-400 mt-0.5 line-clamp-2 leading-relaxed">
-                            {n.mensagem}
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className={`font-bold text-xs truncate group-hover:text-[#e30613] transition-colors ${
+                                isRead ? 'text-gray-600 dark:text-neutral-400' : 'text-gray-900 dark:text-neutral-100'
+                              }`}>
+                                {n.titulo}
+                              </span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                {isRead && (
+                                  <span className="text-[8px] font-bold uppercase px-1 py-0.2 rounded bg-gray-200 dark:bg-neutral-800 text-gray-500">
+                                    Lida
+                                  </span>
+                                )}
+                                <span className="text-[9px] font-semibold text-gray-400">
+                                  {n.tempo}
+                                </span>
+                              </div>
+                            </div>
 
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#e30613] mt-1.5 group-hover:underline">
-                            Resolver agora <ExternalLink className="w-2.5 h-2.5" />
-                          </span>
+                            <p className="text-[11px] text-gray-500 dark:text-neutral-400 mt-0.5 line-clamp-2 leading-relaxed">
+                              {n.mensagem}
+                            </p>
+
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#e30613] mt-1.5 group-hover:underline">
+                              Resolver agora <ExternalLink className="w-2.5 h-2.5" />
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))
+                      </Link>
+                    );
+                  })
                 )}
               </div>
 
