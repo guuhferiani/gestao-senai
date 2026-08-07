@@ -12,7 +12,7 @@ export function Topbar() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const userName = session?.user?.name || 'Usuário Gestão';
+  const userName = session?.user?.name || 'Coordenador SENAI';
   const userPerfil = (session?.user as any)?.perfil || 'COORDENADOR';
 
   // Fechar dropdown ao clicar fora
@@ -27,16 +27,19 @@ export function Topbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-6 shadow-sm transition-colors">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 sm:px-6 shadow-xs transition-colors">
       
-      {/* Título Principal */}
-      <div className="flex items-center gap-4 flex-1">
-        <h1 className="text-xl font-bold text-gray-800 dark:text-neutral-100 tracking-tight">
+      {/* Título Principal Compacto e Responsivo */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0 pr-2">
+        <h1 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-neutral-100 tracking-tight truncate">
           Gestão de Docentes
         </h1>
+        <span className="hidden md:inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 dark:bg-red-950/60 text-[#e30613] tracking-wide">
+          SENAI SP
+        </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Alternador de Tema */}
         <ModeToggle />
 
@@ -45,72 +48,54 @@ export function Topbar() {
           className="rounded-full p-2 text-gray-500 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
           title="Notificações"
         >
-          <Bell className="h-5 w-5" />
+          <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
         
-        {/* Menu do Avatar do Usuário (Dropdown Referência) */}
-        <div className="relative border-l border-gray-200 dark:border-neutral-800 pl-4" ref={dropdownRef}>
+        {/* Menu do Avatar do Usuário */}
+        <div className="relative border-l border-gray-200 dark:border-neutral-800 pl-2.5 sm:pl-4" ref={dropdownRef}>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-3 focus:outline-none cursor-pointer group"
+            className="flex items-center gap-2 sm:gap-3 focus:outline-none cursor-pointer group"
           >
-            <div className="flex flex-col items-end leading-tight">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-neutral-500">
+            <div className="hidden sm:flex flex-col items-end leading-tight">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-neutral-500">
                 BEM-VINDO,
               </span>
-              <span className="text-sm font-bold text-[#e30613] group-hover:underline">
+              <span className="text-xs font-bold text-gray-800 dark:text-neutral-200 group-hover:text-[#e30613] transition-colors truncate max-w-[140px]">
                 {userName}
               </span>
             </div>
 
-            {/* Círculo do Avatar com Inicial */}
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e30613] text-white font-black text-sm shadow-sm transition-transform group-hover:scale-105">
+            {/* Avatar Circular */}
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#e30613] text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-xs group-hover:ring-2 group-hover:ring-red-400 transition-all">
               {userName.charAt(0).toUpperCase()}
             </div>
 
-            {/* Ícone Chevron com Rotação Suave */}
-            <ChevronDown className={cn(
-              "h-4 w-4 text-[#e30613] transition-transform duration-300 ease-out group-hover:translate-y-0.5",
-              isOpen && "rotate-180 group-hover:translate-y-0"
-            )} />
+            <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-neutral-300 transition-transform duration-200" />
           </button>
 
-          {/* Card do Dropdown (Exatamente como a referência) */}
+          {/* Menu Dropdown de Perfil */}
           {isOpen && (
-            <div className="absolute right-0 top-12 mt-2 w-56 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl overflow-hidden py-1.5 z-50 animate-in fade-in slide-in-from-top-2">
-              
-              <div className="px-4 py-2 border-b border-gray-100 dark:border-neutral-800/80 bg-gray-50/50 dark:bg-neutral-800/40">
-                <p className="text-xs font-semibold text-gray-500 dark:text-neutral-400">Perfil Conectado</p>
-                <p className="text-xs font-bold text-gray-900 dark:text-neutral-100 uppercase tracking-wider">{userPerfil}</p>
+            <div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 py-1.5 shadow-xl animate-in fade-in-0 zoom-in-95 duration-150 z-50">
+              <div className="px-4 py-2 border-b border-gray-100 dark:border-neutral-800">
+                <p className="text-xs font-bold text-gray-900 dark:text-neutral-100 truncate">{userName}</p>
+                <p className="text-[10px] text-gray-500 dark:text-neutral-400 uppercase font-semibold tracking-wider mt-0.5">
+                  Perfil: {userPerfil}
+                </p>
               </div>
 
-              {/* Meu Perfil */}
-              <Link
-                href="/dashboard"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-              >
-                <User className="h-4 w-4 text-gray-500 dark:text-neutral-400" />
-                <span>Meu Perfil</span>
-              </Link>
-
-              <div className="border-t border-gray-100 dark:border-neutral-800 my-1" />
-
-              {/* Botão Sair */}
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  signOut({ callbackUrl: '/login' });
-                }}
-                className="flex w-full items-center gap-3 px-4 py-3 text-sm font-bold text-[#e30613] hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer text-left"
-              >
-                <LogOut className="h-4 w-4 text-[#e30613]" />
-                <span>Sair</span>
-              </button>
+              <div className="py-1">
+                <button
+                  onClick={() => signOut({ callbackUrl: '/login' })}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Encerrar Sessão
+                </button>
+              </div>
             </div>
           )}
         </div>
-
       </div>
     </header>
   );
