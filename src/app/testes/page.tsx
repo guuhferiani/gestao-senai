@@ -589,22 +589,23 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
     expectedResult: 'Histórico completo exibido com operador responsável, timestamp e detalhes da alteração.',
     completed: true,
   },
+  // 13. Dashboard Executivo & Indicadores
   {
-    id: 'audit-2',
-    category: '12. Auditoria & Rastreabilidade de Logs',
-    iconName: 'History',
-    title: 'Exportação de Logs para Excel (CSV)',
-    description: 'Baixar a planilha com todos os eventos de governança acadêmica.',
+    id: 'dash-1',
+    category: '13. Dashboard Executivo & Indicadores',
+    iconName: 'LayoutDashboard',
+    title: 'Gráficos de Ocupação por Área & Regime de Contrato',
+    description: 'Visualizar a taxa de ocupação de cada departamento e a distribuição dos docentes por contrato.',
     testSteps: [
-      'Clicar no botão "Exportar Logs (.CSV)"',
-      'Verificar o download da planilha estruturada com codificação UTF-8'
+      'Acessar /dashboard',
+      'Verificar os 4 KPI cards, gráfico de barras por Área e proporção CLT 40h vs 20h vs Horista'
     ],
-    expectedResult: 'Download automático de arquivo CSV pronto para auditoria da Direção.',
+    expectedResult: 'Gráficos renderizados com dados consolidados e barras proporcionais em tempo real.',
     completed: true,
   },
 ];
 
-const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v9';
+const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v10';
 
 export default function ChecklistPage() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
