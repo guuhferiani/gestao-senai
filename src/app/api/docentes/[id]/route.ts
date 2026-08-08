@@ -108,95 +108,96 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }
     }
 
-    // 3. Executar atualização atômica
-    const docenteAtualizado = await prisma.$transaction(async (tx) => {
-      // Atualiza usuário se existir
-      if (docenteExistente.usuarioId) {
-        const updateUserData: any = {};
-        if (nome) updateUserData.nome = nome.trim();
-        if (email) updateUserData.email = email.toLowerCase().trim();
-        if (typeof ativo === 'boolean') updateUserData.ativo = ativo;
-        if (senha && senha.trim()) {
-          updateUserData.senha = await bcrypt.hash(senha.trim(), 10);
-        }
-
-        await tx.usuario.update({
-          where: { id: docenteExistente.usuarioId },
-          data: updateUserData,
-        });
+    // 3. Executar atualização sequencial
+    if (docenteExistente.usuarioId) {
+      const updateUserData: any = {};
+      if (nome) updateUserData.nome = nome.trim();
+      if (email) updateUserData.email = email.toLowerCase().trim();
+      if (typeof ativo === 'boolean') updateUserData.ativo = ativo;
+      if (senha && senha.trim()) {
+        updateUserData.senha = await bcrypt.hash(senha.trim(), 10);
       }
 
-      // Atualiza dados do docente
-      const updateDocenteData: any = {};
-      if (cargaHorariaContratada !== undefined) {
-        updateDocenteData.cargaHorariaContratada = Number(cargaHorariaContratada);
-      }
-      if (tipoContratacao !== undefined) {
-        updateDocenteData.tipoContratacao = tipoContratacao;
-      }
-      if (observacoes !== undefined) {
-        updateDocenteData.observacoes = observacoes ? observacoes.trim() : null;
-      }
-      if (dispManha !== undefined) updateDocenteData.dispManha = Boolean(dispManha);
-      if (dispTarde !== undefined) updateDocenteData.dispTarde = Boolean(dispTarde);
-      if (dispNoite !== undefined) updateDocenteData.dispNoite = Boolean(dispNoite);
-      if (dispIntegral !== undefined) updateDocenteData.dispIntegral = Boolean(dispIntegral);
-
-      await tx.docente.update({
-        where: { id },
-        data: updateDocenteData,
+      await prisma.usuario.update({
+        where: { id: docenteExistente.usuarioId },
+        data: updateUserData,
       });
+    }
 
-      // Se informou nova lista de áreas, sincroniza DocenteArea
-      if (Array.isArray(areasIds)) {
-        await tx.docenteArea.deleteMany({ where: { docenteId: id } });
-        if (areasIds.length > 0) {
-          await tx.docenteArea.createMany({
-            data: areasIds.map((areaId: string) => ({
+    // Atualiza dados do docente
+    const updateDocenteData: any = {};
+    if (cargaHorariaContratada !== undefined) {
+      updateDocenteData.cargaHorariaContratada = Number(cargaHorariaContratada);
+    }
+    if (tipoContratacao !== undefined) {
+      updateDocenteData.tipoContratacao = tipoContratacao;
+    }
+    if (observacoes !== undefined) {
+      updateDocenteData.observacoes = observacoes ? observacoes.trim() : null;
+    }
+    if (dispManha !== undefined) updateDocenteData.dispManha = Boolean(dispManha);
+    if (dispTarde !== undefined) updateDocenteData.dispTarde = Boolean(dispTarde);
+    if (dispNoite !== undefined) updateDocenteData.dispNoite = Boolean(dispNoite);
+    if (dispIntegral !== undefined) updateDocenteData.dispIntegral = Boolean(dispIntegral);
+
+    await prisma.docente.update({
+      where: { id },
+      data: updateDocenteData,
+    });
+
+    // Se informou nova lista de áreas, sincroniza DocenteArea sequencialmente
+    if (Array.isArray(areasIds)) {
+      await prisma.docenteArea.deleteMany({ where: { docenteId: id } });
+      if (areasIds.length > 0) {
+        for (const areaId of areasIds) {
+          await prisma.docenteArea.create({
+            data: {
               docenteId: id,
               areaId,
-            })),
+            },
           });
         }
       }
+    }
 
-      // Se informou nova lista de competências, sincroniza DocenteUC
-      if (Array.isArray(competenciasIds)) {
-        await tx.docenteUC.deleteMany({ where: { docenteId: id } });
-        if (competenciasIds.length > 0) {
-          await tx.docenteUC.createMany({
-            data: competenciasIds.map((ucId: string) => ({
+    // Se informou nova lista de competências, sincroniza DocenteUC sequencialmente
+    if (Array.isArray(competenciasIds)) {
+      await prisma.docenteUC.deleteMany({ where: { docenteId: id } });
+      if (competenciasIds.length > 0) {
+        for (const ucId of competenciasIds) {
+          await prisma.docenteUC.create({
+            data: {
               docenteId: id,
               ucId,
-            })),
+            },
           });
         }
       }
+    }
 
-      return tx.docente.findUnique({
-        where: { id },
-        include: {
-          usuario: {
-            select: {
-              id: true,
-              nome: true,
-              email: true,
-              perfil: true,
-              ativo: true,
-            },
-          },
-          areas: {
-            include: {
-              area: true,
-            },
-          },
-          competencias: {
-            include: {
-              uc: true,
-            },
+    const docenteAtualizado = await prisma.docente.findUnique({
+      where: { id },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            perfil: true,
+            ativo: true,
           },
         },
-      });
+        areas: {
+          include: {
+            area: true,
+          },
+        },
+        competencias: {
+          include: {
+            uc: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(docenteAtualizado);
@@ -236,16 +237,14 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Exclusão completa em cascata
-    await prisma.$transaction(async (tx) => {
-      await tx.docenteArea.deleteMany({ where: { docenteId: id } });
-      await tx.docenteUC.deleteMany({ where: { docenteId: id } });
-      await tx.docente.delete({ where: { id } });
+    // Exclusão completa em cascata sequencial
+    await prisma.docenteArea.deleteMany({ where: { docenteId: id } });
+    await prisma.docenteUC.deleteMany({ where: { docenteId: id } });
+    await prisma.docente.delete({ where: { id } });
 
-      if (docente.usuarioId) {
-        await tx.usuario.delete({ where: { id: docente.usuarioId } });
-      }
-    });
+    if (docente.usuarioId) {
+      await prisma.usuario.delete({ where: { id: docente.usuarioId } });
+    }
 
     return NextResponse.json({ message: 'Docente excluído com sucesso.' });
   } catch (error: any) {
