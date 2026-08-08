@@ -154,78 +154,79 @@ export async function POST(request: Request) {
     const senhaFinal = senha && senha.trim() ? senha : 'senai123';
     const senhaHash = await bcrypt.hash(senhaFinal, 10);
 
-    // 4. Executar inserção relacional atômica
-    const novoDocente = await prisma.$transaction(async (tx) => {
-      // Cria usuário
-      const usuario = await tx.usuario.create({
-        data: {
-          nome: nome.trim(),
-          email: emailNormalizado,
-          senha: senhaHash,
-          perfil: 'DOCENTE',
-          ativo: Boolean(ativo),
-        },
-      });
+    // 4. Executar inserção relacional sequencial
+    const usuario = await prisma.usuario.create({
+      data: {
+        nome: nome.trim(),
+        email: emailNormalizado,
+        senha: senhaHash,
+        perfil: 'DOCENTE',
+        ativo: Boolean(ativo),
+      },
+    });
 
-      // Cria registro de Docente
-      const docente = await tx.docente.create({
-        data: {
-          usuarioId: usuario.id,
-          cargaHorariaContratada: Number(cargaHorariaContratada) || 40,
-          tipoContratacao: tipoContratacao || 'CLT',
-          observacoes: observacoes ? observacoes.trim() : null,
-          dispManha: Boolean(dispManha),
-          dispTarde: Boolean(dispTarde),
-          dispNoite: Boolean(dispNoite),
-          dispIntegral: Boolean(dispIntegral),
-        },
-      });
+    // Cria registro de Docente
+    const docente = await prisma.docente.create({
+      data: {
+        usuarioId: usuario.id,
+        cargaHorariaContratada: Number(cargaHorariaContratada) || 40,
+        tipoContratacao: tipoContratacao || 'CLT',
+        observacoes: observacoes ? observacoes.trim() : null,
+        dispManha: Boolean(dispManha),
+        dispTarde: Boolean(dispTarde),
+        dispNoite: Boolean(dispNoite),
+        dispIntegral: Boolean(dispIntegral),
+      },
+    });
 
-      // Vincula Áreas Tecnológicas
-      if (areasIds.length > 0) {
-        await tx.docenteArea.createMany({
-          data: areasIds.map((areaId: string) => ({
+    // Vincula Áreas Tecnológicas sequencialmente
+    if (areasIds.length > 0) {
+      for (const areaId of areasIds) {
+        await prisma.docenteArea.create({
+          data: {
             docenteId: docente.id,
             areaId,
-          })),
+          },
         });
       }
+    }
 
-      // Vincula Competências (UCs)
-      if (Array.isArray(competenciasIds) && competenciasIds.length > 0) {
-        await tx.docenteUC.createMany({
-          data: competenciasIds.map((ucId: string) => ({
+    // Vincula Competências (UCs) sequencialmente
+    if (Array.isArray(competenciasIds) && competenciasIds.length > 0) {
+      for (const ucId of competenciasIds) {
+        await prisma.docenteUC.create({
+          data: {
             docenteId: docente.id,
             ucId,
-          })),
+          },
         });
       }
+    }
 
-      // Retorna com dados completos
-      return tx.docente.findUnique({
-        where: { id: docente.id },
-        include: {
-          usuario: {
-            select: {
-              id: true,
-              nome: true,
-              email: true,
-              perfil: true,
-              ativo: true,
-            },
-          },
-          areas: {
-            include: {
-              area: true,
-            },
-          },
-          competencias: {
-            include: {
-              uc: true,
-            },
+    // Retorna com dados completos
+    const novoDocente = await prisma.docente.findUnique({
+      where: { id: docente.id },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            perfil: true,
+            ativo: true,
           },
         },
-      });
+        areas: {
+          include: {
+            area: true,
+          },
+        },
+        competencias: {
+          include: {
+            uc: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(novoDocente, { status: 201 });

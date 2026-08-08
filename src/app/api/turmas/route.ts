@@ -144,47 +144,48 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Criação atômica da turma e das atribuições iniciais
-    const novaTurma = await prisma.$transaction(async (tx) => {
-      const turma = await tx.turma.create({
-        data: {
-          nome: nome.trim(),
-          areaId,
-          oppResponsavelId: oppResponsavelId || null,
-          tipoCurso,
-          dataInicio: dInicio,
-          dataTermino: dTermino,
-          aulasSemanais: Number(aulasSemanais) || 20,
-          totalAulas: Number(totalAulas) || 400,
-          diasSemana: Array.isArray(diasSemana) ? diasSemana.join(',') : diasSemana,
-          periodo,
-        },
-      });
+    // 2. Criação sequencial da turma e das atribuições iniciais
+    const turma = await prisma.turma.create({
+      data: {
+        nome: nome.trim(),
+        areaId,
+        oppResponsavelId: oppResponsavelId || null,
+        tipoCurso,
+        dataInicio: dInicio,
+        dataTermino: dTermino,
+        aulasSemanais: Number(aulasSemanais) || 20,
+        totalAulas: Number(totalAulas) || 400,
+        diasSemana: Array.isArray(diasSemana) ? diasSemana.join(',') : diasSemana,
+        periodo,
+      },
+    });
 
-      // Se informou UCs do plano de curso, inicializa os registros de Atribuicao
-      if (Array.isArray(ucsIds) && ucsIds.length > 0) {
-        await tx.atribuicao.createMany({
-          data: ucsIds.map((ucId: string, index: number) => ({
+    // Se informou UCs do plano de curso, inicializa os registros de Atribuicao sequencialmente
+    if (Array.isArray(ucsIds) && ucsIds.length > 0) {
+      for (let index = 0; index < ucsIds.length; index++) {
+        const ucId = ucsIds[index];
+        await prisma.atribuicao.create({
+          data: {
             turmaId: turma.id,
             ucId,
             docenteId: null,
             diaSemana: (index % 5) + 1, // 1 (Seg) a 5 (Sex) inicial
             horario: periodo === 'MANHA' ? '07:30 - 11:45' : periodo === 'TARDE' ? '13:15 - 17:30' : '18:45 - 22:30',
-          })),
+          },
         });
       }
+    }
 
-      return tx.turma.findUnique({
-        where: { id: turma.id },
-        include: {
-          area: true,
-          atribuicoes: {
-            include: {
-              uc: true,
-            },
+    const novaTurma = await prisma.turma.findUnique({
+      where: { id: turma.id },
+      include: {
+        area: true,
+        atribuicoes: {
+          include: {
+            uc: true,
           },
         },
-      });
+      },
     });
 
     return NextResponse.json(novaTurma, { status: 201 });
