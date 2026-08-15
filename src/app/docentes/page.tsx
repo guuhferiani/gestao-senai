@@ -1678,22 +1678,55 @@ export default function DocentesPage() {
             )}
 
             <DialogFooter className="pt-4 border-t border-gray-200 dark:border-neutral-800 flex items-center justify-between gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsModalOpen(false)}
-                className="text-xs"
-              >
-                Cancelar
-              </Button>
+              <div>
+                {activeTab === 'info' ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsModalOpen(false)}
+                    className="text-xs"
+                  >
+                    Cancelar
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveTab(activeTab === 'competencias' ? 'contrato' : 'info');
+                    }}
+                    className="text-xs flex items-center gap-1.5"
+                  >
+                    &larr; Voltar
+                  </Button>
+                )}
+              </div>
 
               <div className="flex items-center gap-2">
                 {activeTab !== 'competencias' ? (
                   <Button
                     type="button"
-                    onClick={() =>
-                      setActiveTab(activeTab === 'info' ? 'contrato' : 'competencias')
-                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (activeTab === 'info') {
+                        if (!formData.nome.trim()) {
+                          setErrorMessage('O nome do docente é obrigatório.');
+                          return;
+                        }
+                        if (!formData.email.trim()) {
+                          setErrorMessage('O e-mail do docente é obrigatório.');
+                          return;
+                        }
+                        setErrorMessage('');
+                        setActiveTab('contrato');
+                      } else if (activeTab === 'contrato') {
+                        setErrorMessage('');
+                        setActiveTab('competencias');
+                      }
+                    }}
                     className="bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold gap-1.5"
                   >
                     Próximo Passo &rarr;

@@ -194,7 +194,7 @@ export default function TurmasPage() {
       dataInicio: hoje.toISOString().split('T')[0],
       dataTermino: seisMeses.toISOString().split('T')[0],
       aulasSemanais: 20,
-      totalAulas: 400,
+      totalAulas: 1200, // Carga horária padrão para curso Técnico no SENAI (1200 horas)
       diasSemana: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
       periodo: 'MANHA',
       ucsIds: defaultUcs,
@@ -241,6 +241,19 @@ export default function TurmasPage() {
     setIsDeleteModalOpen(true);
   };
 
+  // Troca de Tipo de Curso com sugestão automática de carga horária oficial SENAI
+  const handleTipoCursoChange = (novoTipo: string) => {
+    let defaultHoras = 1200; // Técnico regular (1200h)
+    if (novoTipo === 'CAI') defaultHoras = 800; // Aprendizagem Industrial (800h a 1600h)
+    if (novoTipo === 'FIC') defaultHoras = 160; // Formação Inicial & Continuada (160h)
+
+    setFormData((prev) => ({
+      ...prev,
+      tipoCurso: novoTipo,
+      totalAulas: defaultHoras,
+    }));
+  };
+
   // Troca de Área Tecnológica no formulário
   const handleAreaChange = (newAreaId: string) => {
     const novaArea = areas.find((a) => a.id === newAreaId);
@@ -252,14 +265,20 @@ export default function TurmasPage() {
     }));
   };
 
-  // Toggle de dias da semana
+  // Toggle de dias da semana com cálculo automático de horas semanais (4h por dia)
   const handleToggleDiaSemana = (diaId: string) => {
     setFormData((prev) => {
       const exists = prev.diasSemana.includes(diaId);
       const updated = exists
         ? prev.diasSemana.filter((d) => d !== diaId)
         : [...prev.diasSemana, diaId];
-      return { ...prev, diasSemana: updated };
+      
+      const horasSemanaisCalculadas = updated.length * 4;
+      return { 
+        ...prev, 
+        diasSemana: updated,
+        aulasSemanais: horasSemanaisCalculadas > 0 ? horasSemanaisCalculadas : prev.aulasSemanais,
+      };
     });
   };
 
@@ -982,7 +1001,7 @@ export default function TurmasPage() {
                       Área Tecnológica <span className="text-red-500">*</span>
                     </Label>
                     <div className="mt-1.5">
-                      <CustomSelect
+                    <CustomSelect
                         value={formData.areaId}
                         onChange={handleAreaChange}
                         icon={Layers}
@@ -1000,12 +1019,12 @@ export default function TurmasPage() {
                     <div className="mt-1.5">
                       <CustomSelect
                         value={formData.tipoCurso}
-                        onChange={(val) => setFormData({ ...formData, tipoCurso: val })}
+                        onChange={handleTipoCursoChange}
                         icon={GraduationCap}
                         options={[
-                          { value: 'TECNICO', label: 'Habilitação Técnica (Regular)' },
-                          { value: 'CAI', label: 'Aprendizagem Industrial (CAI)' },
-                          { value: 'FIC', label: 'Formação Inicial & Continuada (FIC)' },
+                          { value: 'TECNICO', label: 'Habilitação Técnica (1200h padrão)' },
+                          { value: 'CAI', label: 'Aprendizagem Industrial - CAI (800h padrão)' },
+                          { value: 'FIC', label: 'Formação Inicial & Continuada - FIC (160h padrão)' },
                         ]}
                       />
                     </div>
@@ -1038,7 +1057,7 @@ export default function TurmasPage() {
 
             {/* ABA 2: Calendário & Horários */}
             {activeTab === 'calendario' && (
-              <div className="space-y-6 pb-28">
+              <div className="space-y-6 pb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <Label htmlFor="dataInicio" className="text-xs font-semibold">
@@ -1068,7 +1087,7 @@ export default function TurmasPage() {
 
                   <div>
                     <Label htmlFor="aulasSemanais" className="text-xs font-semibold">
-                      Aulas Semanais
+                      Carga Horária Semanal (Horas)
                     </Label>
                     <Input
                       id="aulasSemanais"
@@ -1080,22 +1099,41 @@ export default function TurmasPage() {
                       required
                       className="mt-1.5 text-xs h-10 rounded-xl"
                     />
+                    <span className="text-[10px] text-gray-400 mt-1 block">
+                      Calculado pelos dias (ex: 5 dias = 20h)
+                    </span>
                   </div>
 
                   <div>
                     <Label htmlFor="totalAulas" className="text-xs font-semibold">
-                      Total de Aulas do Curso
+                      Carga Horária Total do Curso (Horas)
                     </Label>
                     <Input
                       id="totalAulas"
                       type="number"
                       min={10}
-                      max={2000}
+                      max={4000}
                       value={formData.totalAulas}
                       onChange={(e) => setFormData({ ...formData, totalAulas: Number(e.target.value) })}
                       required
                       className="mt-1.5 text-xs h-10 rounded-xl"
                     />
+                    <span className="text-[10px] text-gray-400 mt-1 block">
+                      Total de horas da matriz do curso
+                    </span>
+                  </div>
+
+                  {/* Banner Explicativo de Carga Horária SENAI */}
+                  <div className="sm:col-span-2 md:col-span-4 p-3 bg-red-50/60 dark:bg-red-950/30 border border-red-200/80 dark:border-red-900/40 rounded-xl flex items-center justify-between text-xs text-[#e30613] dark:text-red-300">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 shrink-0" />
+                      <span>
+                        <strong>Carga Programada:</strong> ~{formData.aulasSemanais}h semanais ({formData.diasSemana.length} dias letivos × 4h/dia) • Total do curso: <strong>{formData.totalAulas} horas</strong>
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400">
+                      Padrão Oficial SENAI
+                    </span>
                   </div>
                 </div>
 
@@ -1136,10 +1174,10 @@ export default function TurmasPage() {
                             key={d.id}
                             type="button"
                             onClick={() => handleToggleDiaSemana(d.id)}
-                            className={`p-2.5 rounded-lg border text-center font-semibold transition-all ${
+                            className={`p-2.5 rounded-xl border text-center font-bold transition-all ${
                               isSelected
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
-                                : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-50'
                             }`}
                           >
                             {d.id}
@@ -1155,32 +1193,31 @@ export default function TurmasPage() {
             {/* ABA 3: Plano Curricular (UCs) */}
             {activeTab === 'plano' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-200 dark:border-neutral-800 pb-2">
+                <div className="flex items-center justify-between border-b border-gray-200 dark:border-neutral-800 pb-2.5">
                   <div>
-                    <Label className="text-xs font-bold text-gray-900 dark:text-neutral-100">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-neutral-100">
                       Unidades Curriculares do Plano de Curso
-                    </Label>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      Selecione todas as UCs que compõem a grade curricular desta turma.
+                    </h4>
+                    <p className="text-[11px] text-gray-500 dark:text-neutral-400">
+                      Selecione as UCs da Área Tecnológica que farão parte da grade desta turma.
                     </p>
                   </div>
 
-                  {ucsDisponiveisNoModal.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleToggleAllUCs}
-                      className="text-xs text-[#e30613] hover:underline font-bold"
-                    >
-                      {ucsDisponiveisNoModal.every((u) => formData.ucsIds.includes(u.id))
-                        ? 'Desmarcar Todas'
-                        : 'Selecionar Todas da Área'}
-                    </button>
-                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleToggleAllUCs}
+                    className="text-xs h-8 border-gray-200 dark:border-neutral-700"
+                  >
+                    Alternar Todas
+                  </Button>
                 </div>
 
                 {ucsDisponiveisNoModal.length === 0 ? (
-                  <div className="p-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs text-center border border-amber-200 dark:border-amber-900">
-                    Nenhuma Unidade Curricular cadastrada na área selecionada. Cadastre UCs na tela de Áreas e UCs primeiro.
+                  <div className="p-8 text-center bg-gray-50 dark:bg-neutral-800/40 rounded-xl border border-dashed border-gray-200 dark:border-neutral-800">
+                    <p className="text-xs text-gray-500">
+                      Nenhuma Unidade Curricular cadastrada para esta Área Tecnológica.
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">
@@ -1189,10 +1226,10 @@ export default function TurmasPage() {
                       return (
                         <label
                           key={uc.id}
-                          className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                          className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-medium cursor-pointer ${
                             isSelected
-                              ? 'bg-purple-50 dark:bg-purple-950/50 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200 font-semibold shadow-2xs'
-                              : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-400 hover:bg-gray-100/70'
+                              ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200 font-semibold'
+                              : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-50'
                           }`}
                         >
                           <input
@@ -1211,22 +1248,67 @@ export default function TurmasPage() {
             )}
 
             <DialogFooter className="pt-4 border-t border-gray-200 dark:border-neutral-800 flex items-center justify-between gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsModalOpen(false)}
-                className="text-xs"
-              >
-                Cancelar
-              </Button>
+              <div>
+                {activeTab === 'identificacao' ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsModalOpen(false)}
+                    className="text-xs"
+                  >
+                    Cancelar
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveTab(activeTab === 'plano' ? 'calendario' : 'identificacao');
+                    }}
+                    className="text-xs flex items-center gap-1.5"
+                  >
+                    &larr; Voltar
+                  </Button>
+                )}
+              </div>
 
               <div className="flex items-center gap-2">
                 {activeTab !== 'plano' ? (
                   <Button
                     type="button"
-                    onClick={() =>
-                      setActiveTab(activeTab === 'identificacao' ? 'calendario' : 'plano')
-                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (activeTab === 'identificacao') {
+                        if (!formData.nome.trim()) {
+                          setErrorMessage('O nome da turma é obrigatório.');
+                          return;
+                        }
+                        if (!formData.areaId) {
+                          setErrorMessage('Selecione uma Área Tecnológica.');
+                          return;
+                        }
+                        setErrorMessage('');
+                        setActiveTab('calendario');
+                      } else if (activeTab === 'calendario') {
+                        if (!formData.dataInicio || !formData.dataTermino) {
+                          setErrorMessage('As datas de início e término são obrigatórias.');
+                          return;
+                        }
+                        if (new Date(formData.dataInicio) >= new Date(formData.dataTermino)) {
+                          setErrorMessage('A data de término deve ser posterior à data de início.');
+                          return;
+                        }
+                        if (formData.diasSemana.length === 0) {
+                          setErrorMessage('Selecione pelo menos um dia letivo.');
+                          return;
+                        }
+                        setErrorMessage('');
+                        setActiveTab('plano');
+                      }
+                    }}
                     className="bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold gap-1.5"
                   >
                     Próximo Passo &rarr;
