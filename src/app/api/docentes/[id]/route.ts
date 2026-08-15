@@ -171,31 +171,29 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     // Se informou nova lista de áreas, sincroniza DocenteArea sequencialmente
     if (Array.isArray(areasIds)) {
+      const uniqueAreasIds: string[] = Array.from(new Set(areasIds.filter(Boolean) as string[]));
       await prisma.docenteArea.deleteMany({ where: { docenteId: id } });
-      if (areasIds.length > 0) {
-        for (const areaId of areasIds) {
-          await prisma.docenteArea.create({
-            data: {
-              docenteId: id,
-              areaId,
-            },
-          });
-        }
+      for (const areaId of uniqueAreasIds) {
+        await prisma.docenteArea.create({
+          data: {
+            docenteId: id,
+            areaId,
+          },
+        });
       }
     }
 
     // Se informou nova lista de competências, sincroniza DocenteUC sequencialmente
     if (Array.isArray(competenciasIds)) {
+      const uniqueCompetenciasIds: string[] = Array.from(new Set(competenciasIds.filter(Boolean) as string[]));
       await prisma.docenteUC.deleteMany({ where: { docenteId: id } });
-      if (competenciasIds.length > 0) {
-        for (const ucId of competenciasIds) {
-          await prisma.docenteUC.create({
-            data: {
-              docenteId: id,
-              ucId,
-            },
-          });
-        }
+      for (const ucId of uniqueCompetenciasIds) {
+        await prisma.docenteUC.create({
+          data: {
+            docenteId: id,
+            ucId,
+          },
+        });
       }
     }
 

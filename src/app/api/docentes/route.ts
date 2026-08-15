@@ -195,8 +195,9 @@ export async function POST(request: Request) {
     });
 
     // Vincula Áreas Tecnológicas sequencialmente
-    if (areasIds.length > 0) {
-      for (const areaId of areasIds) {
+    const uniqueAreasIds: string[] = Array.from(new Set((areasIds || []).filter(Boolean) as string[]));
+    if (uniqueAreasIds.length > 0) {
+      for (const areaId of uniqueAreasIds) {
         await prisma.docenteArea.create({
           data: {
             docenteId: docente.id,
@@ -207,8 +208,9 @@ export async function POST(request: Request) {
     }
 
     // Vincula Competências (UCs) sequencialmente
-    if (Array.isArray(competenciasIds) && competenciasIds.length > 0) {
-      for (const ucId of competenciasIds) {
+    const uniqueCompetenciasIds: string[] = Array.from(new Set((competenciasIds || []).filter(Boolean) as string[]));
+    if (uniqueCompetenciasIds.length > 0) {
+      for (const ucId of uniqueCompetenciasIds) {
         await prisma.docenteUC.create({
           data: {
             docenteId: docente.id,
