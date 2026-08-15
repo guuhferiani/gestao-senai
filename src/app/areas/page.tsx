@@ -162,7 +162,7 @@ export default function AreasPage() {
     } else {
       setEditingUc(null);
       setUcNome('');
-      setUcAreaId(defaultAreaId || (areas.length > 0 ? areas[0].id : ''));
+      setUcAreaId(defaultAreaId || '');
     }
     setIsUcModalOpen(true);
   };
@@ -621,7 +621,7 @@ export default function AreasPage() {
                 value={ucAreaId}
                 onChange={setUcAreaId}
                 icon={Layers}
-                placeholder="Selecione uma área..."
+                placeholder="Selecione uma Área Tecnológica..."
                 options={areas.map((a) => ({ value: a.id, label: a.nome }))}
               />
             </div>
