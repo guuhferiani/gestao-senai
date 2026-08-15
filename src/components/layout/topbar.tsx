@@ -12,7 +12,9 @@ import {
   ExternalLink,
   Sparkles,
   RefreshCw,
-  Check
+  Check,
+  BookOpen,
+  HelpCircle
 } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useSession, signOut } from 'next-auth/react';
@@ -344,9 +346,20 @@ export function Topbar() {
               </div>
 
               <div className="py-1">
+                <Link
+                  href="/ajuda"
+                  onClick={() => setIsOpen(false)}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                >
+                  <BookOpen className="h-4 w-4 text-[#e30613]" />
+                  <span>Guia do Usuário & Tutoriais</span>
+                </Link>
+
+                <div className="my-1 border-t border-gray-100 dark:border-neutral-800" />
+
                 <button
                   onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                  className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-4 w-4" />
                   Encerrar Sessão
