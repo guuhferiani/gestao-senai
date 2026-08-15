@@ -532,7 +532,7 @@ export default function RelatoriosPage() {
                       {d.cargaContratada}h / sem
                     </td>
                     <td className="py-4 px-6 font-extrabold text-[#e30613]">
-                      {d.horasAlocadas}h ({d.totalAulas} aulas)
+                      {d.horasAlocadas}h alocadas
                     </td>
                     <td className="py-4 px-6 font-bold text-emerald-600 dark:text-emerald-400">
                       {d.horasLivres}h livres
@@ -695,7 +695,7 @@ export default function RelatoriosPage() {
 
                 <div className="pt-3 border-t border-gray-100 dark:border-neutral-800 text-[11px] text-gray-500 flex items-center justify-between">
                   <span>Vigência: {new Date(t.dataInicio).toLocaleDateString('pt-BR')} a {new Date(t.dataTermino).toLocaleDateString('pt-BR')}</span>
-                  <span className="font-bold text-gray-800 dark:text-neutral-200">{t.totalSlots} aulas</span>
+                  <span className="font-bold text-gray-800 dark:text-neutral-200">{t.totalSlots} slots de grade</span>
                 </div>
               </div>
             ))}

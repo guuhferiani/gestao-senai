@@ -738,7 +738,7 @@ export default function TurmasPage() {
                         {new Date(turma.dataTermino).toLocaleDateString('pt-BR')}
                       </div>
                       <div className="text-gray-400 text-[10px]">
-                        Total: {turma.totalAulas} aulas
+                        Carga total: {turma.totalAulas} horas
                       </div>
                     </td>
 
