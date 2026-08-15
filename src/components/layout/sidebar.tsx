@@ -6,14 +6,12 @@ import {
   LayoutDashboard, 
   BookOpen, 
   Users, 
-  Calendar,
-  CalendarDays,
-  UserCog,
-  BarChart3,
-  Sparkles,
-  History,
-  ListChecks,
-  LogOut
+  Calendar, 
+  CalendarDays, 
+  UserCog, 
+  BarChart3, 
+  Sparkles, 
+  LogOut 
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -29,8 +27,6 @@ const menuItems = [
   { name: 'Simulador de Demanda', href: '/simulador', icon: Sparkles },
   { name: 'Usuários & Acessos', href: '/usuarios', icon: UserCog },
   { name: 'Relatórios & Métricas', href: '/relatorios', icon: BarChart3 },
-  { name: 'Auditoria & Logs', href: '/auditoria', icon: History },
-  { name: 'Checklist & Histórico', href: '/testes', icon: ListChecks },
 ];
 
 export function Sidebar() {
