@@ -71,6 +71,7 @@ model Docente {
   dispTarde    Boolean @default(false)
   dispNoite    Boolean @default(false)
   dispIntegral Boolean @default(false)
+  dispHorarios String? // JSON string: string[] de IDs de blocos (ex: ["M1","M2","N1","N2","N3"])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

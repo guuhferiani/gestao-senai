@@ -115,6 +115,7 @@ export async function POST(request: Request) {
       dispTarde = false,
       dispNoite = false,
       dispIntegral = false,
+      dispHorarios,
       areasIds = [],
       competenciasIds = [],
     } = body;
@@ -154,6 +155,19 @@ export async function POST(request: Request) {
     const senhaFinal = senha && senha.trim() ? senha : 'senai123';
     const senhaHash = await bcrypt.hash(senhaFinal, 10);
 
+    // Calcular disponibilidades a partir dos blocos se fornecido
+    const horariosArray: string[] = Array.isArray(dispHorarios)
+      ? dispHorarios
+      : typeof dispHorarios === 'string' && dispHorarios.startsWith('[')
+      ? JSON.parse(dispHorarios)
+      : [];
+
+    const hasManha = horariosArray.length > 0 ? horariosArray.some((h) => h.startsWith('M')) : Boolean(dispManha);
+    const hasTarde = horariosArray.length > 0 ? horariosArray.some((h) => h.startsWith('T')) : Boolean(dispTarde);
+    const hasNoite = horariosArray.length > 0 ? horariosArray.some((h) => h.startsWith('N')) : Boolean(dispNoite);
+    const hasIntegral = Boolean(dispIntegral) || (hasManha && hasTarde && hasNoite);
+    const dispHorariosString = horariosArray.length > 0 ? JSON.stringify(horariosArray) : typeof dispHorarios === 'string' ? dispHorarios : null;
+
     // 4. Executar inserção relacional sequencial
     const usuario = await prisma.usuario.create({
       data: {
@@ -172,10 +186,11 @@ export async function POST(request: Request) {
         cargaHorariaContratada: Number(cargaHorariaContratada) || 40,
         tipoContratacao: tipoContratacao || 'CLT',
         observacoes: observacoes ? observacoes.trim() : null,
-        dispManha: Boolean(dispManha),
-        dispTarde: Boolean(dispTarde),
-        dispNoite: Boolean(dispNoite),
-        dispIntegral: Boolean(dispIntegral),
+        dispManha: hasManha,
+        dispTarde: hasTarde,
+        dispNoite: hasNoite,
+        dispIntegral: hasIntegral,
+        dispHorarios: dispHorariosString,
       },
     });
 

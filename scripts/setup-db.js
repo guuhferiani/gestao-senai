@@ -59,6 +59,7 @@ async function setupDatabase() {
         "dispTarde" BOOLEAN NOT NULL DEFAULT false,
         "dispNoite" BOOLEAN NOT NULL DEFAULT false,
         "dispIntegral" BOOLEAN NOT NULL DEFAULT false,
+        "dispHorarios" TEXT,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Docente_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE SET NULL ON UPDATE CASCADE

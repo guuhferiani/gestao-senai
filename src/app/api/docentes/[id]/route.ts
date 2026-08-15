@@ -81,6 +81,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       dispTarde,
       dispNoite,
       dispIntegral,
+      dispHorarios,
       areasIds,
       competenciasIds,
     } = body;
@@ -135,10 +136,33 @@ export async function PUT(request: Request, { params }: RouteParams) {
     if (observacoes !== undefined) {
       updateDocenteData.observacoes = observacoes ? observacoes.trim() : null;
     }
-    if (dispManha !== undefined) updateDocenteData.dispManha = Boolean(dispManha);
-    if (dispTarde !== undefined) updateDocenteData.dispTarde = Boolean(dispTarde);
-    if (dispNoite !== undefined) updateDocenteData.dispNoite = Boolean(dispNoite);
-    if (dispIntegral !== undefined) updateDocenteData.dispIntegral = Boolean(dispIntegral);
+
+    if (dispHorarios !== undefined) {
+      const horariosArray: string[] = Array.isArray(dispHorarios)
+        ? dispHorarios
+        : typeof dispHorarios === 'string' && dispHorarios.startsWith('[')
+        ? JSON.parse(dispHorarios)
+        : [];
+
+      if (horariosArray.length > 0) {
+        updateDocenteData.dispManha = horariosArray.some((h) => h.startsWith('M'));
+        updateDocenteData.dispTarde = horariosArray.some((h) => h.startsWith('T'));
+        updateDocenteData.dispNoite = horariosArray.some((h) => h.startsWith('N'));
+        updateDocenteData.dispIntegral = updateDocenteData.dispManha && updateDocenteData.dispTarde && updateDocenteData.dispNoite;
+        updateDocenteData.dispHorarios = JSON.stringify(horariosArray);
+      } else {
+        updateDocenteData.dispHorarios = typeof dispHorarios === 'string' ? dispHorarios : null;
+        if (dispManha !== undefined) updateDocenteData.dispManha = Boolean(dispManha);
+        if (dispTarde !== undefined) updateDocenteData.dispTarde = Boolean(dispTarde);
+        if (dispNoite !== undefined) updateDocenteData.dispNoite = Boolean(dispNoite);
+        if (dispIntegral !== undefined) updateDocenteData.dispIntegral = Boolean(dispIntegral);
+      }
+    } else {
+      if (dispManha !== undefined) updateDocenteData.dispManha = Boolean(dispManha);
+      if (dispTarde !== undefined) updateDocenteData.dispTarde = Boolean(dispTarde);
+      if (dispNoite !== undefined) updateDocenteData.dispNoite = Boolean(dispNoite);
+      if (dispIntegral !== undefined) updateDocenteData.dispIntegral = Boolean(dispIntegral);
+    }
 
     await prisma.docente.update({
       where: { id },

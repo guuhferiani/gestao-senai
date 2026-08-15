@@ -100,6 +100,7 @@ export async function GET(
         dispTarde: docente.dispTarde,
         dispNoite: docente.dispNoite,
         dispIntegral: docente.dispIntegral,
+        dispHorarios: docente.dispHorarios,
         observacoes: docente.observacoes,
         areas: docente.areas.map((a) => ({
           id: a.area.id,

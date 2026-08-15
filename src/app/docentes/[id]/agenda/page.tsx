@@ -55,6 +55,7 @@ interface DocenteProfile {
   dispTarde: boolean;
   dispNoite: boolean;
   dispIntegral: boolean;
+  dispHorarios?: string | null;
   observacoes: string | null;
   areas: { id: string; nome: string }[];
   competencias: { id: string; nome: string; area: string }[];
@@ -219,32 +220,39 @@ export default function DocenteAgendaPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        {/* Turnos de Disponibilidade */}
-        <div className="bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-gray-100 dark:border-neutral-800 text-xs space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-neutral-500 block">
-            Disponibilidade Semanal Cadastrada:
-          </span>
+        {/* Turnos e Blocos de Disponibilidade */}
+        <div className="bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-gray-100 dark:border-neutral-800 text-xs space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-neutral-500 block">
+              Disponibilidade Semanal Cadastrada:
+            </span>
+            {docente.dispHorarios && (
+              <span className="text-[10px] font-bold text-[#e30613]">
+                Grade em Blocos (45 min)
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap gap-1.5">
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-              docente.dispManha ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
+            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+              docente.dispManha ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border border-amber-300/60' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
             }`}>
-              Manhã
+              Manhã (07:30 – 11:45)
             </span>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-              docente.dispTarde ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
+            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+              docente.dispTarde ? 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-300 border border-orange-300/60' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
             }`}>
-              Tarde
+              Tarde (13:15 – 17:30)
             </span>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-              docente.dispNoite ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
+            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+              docente.dispNoite ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300/60' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
             }`}>
-              Noite
+              Noite (18:45 – 22:30)
             </span>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-              docente.dispIntegral ? 'bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300' : 'bg-gray-200 text-gray-400 dark:bg-neutral-800 dark:text-neutral-600'
-            }`}>
-              Integral
-            </span>
+            {docente.dispIntegral && (
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300/60">
+                Integral Flexível
+              </span>
+            )}
           </div>
         </div>
       </div>

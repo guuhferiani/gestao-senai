@@ -77,8 +77,8 @@ export async function GET(request: Request) {
       // b) Pertence à Área Tecnológica da Turma?
       const temArea = docente.areas.some((a) => a.areaId === turma.areaId);
 
-      // c) Tem disponibilidade no Turno da Turma?
-      const temTurno =
+      // c) Tem disponibilidade no Turno / Bloco de Horário da Turma?
+      let temTurno =
         turma.periodo === 'MANHA'
           ? docente.dispManha || docente.dispIntegral
           : turma.periodo === 'TARDE'
@@ -86,6 +86,33 @@ export async function GET(request: Request) {
           : turma.periodo === 'NOITE'
           ? docente.dispNoite
           : docente.dispIntegral || (docente.dispManha && docente.dispTarde);
+
+      // Verificação granular se o docente possui dispHorarios cadastrado
+      let restritivoHorarioMotivo = '';
+      if (docente.dispHorarios) {
+        try {
+          const horariosList: string[] = JSON.parse(docente.dispHorarios);
+          if (Array.isArray(horariosList) && horariosList.length > 0) {
+            if (turma.periodo === 'MANHA') {
+              temTurno = horariosList.some((h) => h.startsWith('M'));
+            } else if (turma.periodo === 'TARDE') {
+              temTurno = horariosList.some((h) => h.startsWith('T'));
+            } else if (turma.periodo === 'NOITE') {
+              temTurno = horariosList.some((h) => h.startsWith('N'));
+              // Se a aula for no final da noite (após 21h30 / N5) e o professor só marcou até 21h30 (N1, N2, N3)
+              if (horario && (horario.includes('21:45') || horario.includes('22:00') || horario.includes('22:30'))) {
+                const temFinalNoite = horariosList.includes('N4') || horariosList.includes('N5');
+                if (!temFinalNoite) {
+                  temTurno = false;
+                  restritivoHorarioMotivo = 'Disponibilidade noturna limitada até às 21h00/21h30 (não cobre o 2º bloco até 22h30).';
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Erro ao ler dispHorarios do docente:', e);
+        }
+      }
 
       // d) Possui conflito de dia e horário em outra aula/turma?
       const conflito = docente.atribuicoes.find(
@@ -111,7 +138,7 @@ export async function GET(request: Request) {
         motivo = `Sem Competência Técnica: O docente não possui a UC "${uc.nome}" cadastrada em seu perfil.`;
       } else if (!temTurno) {
         status = 'INDISPONIVEL';
-        motivo = `Sem Disponibilidade no Turno: Não possui disponibilidade cadastrada para o turno ${turma.periodo}.`;
+        motivo = restritivoHorarioMotivo || `Sem Disponibilidade no Turno: Não possui disponibilidade cadastrada para o turno ${turma.periodo}.`;
       } else if (limiteCargaAtingido) {
         status = 'INDISPONIVEL';
         motivo = `Carga Horária Máxima Atingida: Já possui ${totalHorasAlocadas}h alocadas de ${docente.cargaHorariaContratada}h contratadas.`;
@@ -124,6 +151,7 @@ export async function GET(request: Request) {
         tipoContratacao: docente.tipoContratacao,
         cargaHorariaContratada: docente.cargaHorariaContratada,
         horasAlocadas: totalHorasAlocadas,
+        dispHorarios: docente.dispHorarios,
         status,
         motivo,
         temCompetencia,

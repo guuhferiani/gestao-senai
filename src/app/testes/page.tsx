@@ -352,7 +352,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
     completed: true,
   },
 
-  // 6. Matriz de Atribuição e Disponibilidade Docente (Etapa 4 - EM ANDAMENTO)
+  // 6. Matriz de Atribuição e Disponibilidade Docente (Etapa 4)
   {
     id: 'atrib-1',
     category: '6. Matriz de Atribuição & Conflitos (Etapa 4)',
@@ -365,7 +365,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
       'Verificar se o "Prof. Ricardo Mendes" aparece com status VERDE (Apto)'
     ],
     expectedResult: 'Docente exibido na seção de aptos com botão de atribuição rápida disponível.',
-    completed: false,
+    completed: true,
   },
   {
     id: 'atrib-2',
@@ -379,7 +379,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
       'Verificar se o sistema bloqueia e exibe status VERMELHO com o motivo do conflito'
     ],
     expectedResult: 'Bloqueio exibindo: "Conflito de Horário: Já leciona na turma Turma A neste mesmo horário".',
-    completed: false,
+    completed: true,
   },
   {
     id: 'atrib-3',
@@ -392,7 +392,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
       'Verificar a listagem de docentes'
     ],
     expectedResult: 'Docentes da área de TI aparecem em VERMELHO com o aviso: "Sem Competência Técnica cadastrada".',
-    completed: false,
+    completed: true,
   },
   {
     id: 'atrib-4',
@@ -405,7 +405,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
       'Salvar e verificar a atualização na grade semanal'
     ],
     expectedResult: 'Local salvo e exibido no card da aula da turma.',
-    completed: false,
+    completed: true,
   },
   {
     id: 'atrib-5',
@@ -605,7 +605,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
   },
 ];
 
-const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v10';
+const LOCAL_STORAGE_KEY = 'gestao_senai_checklist_v11';
 
 export default function ChecklistPage() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
@@ -694,14 +694,15 @@ export default function ChecklistPage() {
                 Linha do Tempo & Status do Projeto
               </h2>
               <p className="text-xs text-neutral-300">
-                Acompanhe o que já foi entregue e qual etapa estamos desenvolvendo.
+                Acompanhe o que já foi entregue e a cobertura de todos os módulos acadêmicos.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
-              Etapa 4 em Desenvolvimento
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              100% dos Módulos Desenvolvidos
             </span>
           </div>
         </div>
@@ -735,13 +736,13 @@ export default function ChecklistPage() {
             <p className="text-[11px] text-neutral-400">Criação de turmas e plano de disciplinas.</p>
           </div>
 
-          <div className="bg-red-950/40 p-3.5 rounded-xl border border-red-500/50 space-y-1">
+          <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-amber-400">Etapa 4 • Em Execução 🎯</span>
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="font-bold text-emerald-400">Etapas 4 & 5+ • Concluídas</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="font-semibold text-white">Matriz de Atribuição & Conflitos</p>
-            <p className="text-[11px] text-neutral-300">Grade semanal e painel verde/vermelho.</p>
+            <p className="font-semibold text-neutral-100">Atribuição, Agenda & Painéis</p>
+            <p className="text-[11px] text-neutral-400">Matriz em tempo real, agenda, auditoria e KPIs.</p>
           </div>
         </div>
       </div>

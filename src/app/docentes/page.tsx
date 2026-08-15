@@ -63,6 +63,7 @@ interface DocenteItem {
   dispTarde: boolean;
   dispNoite: boolean;
   dispIntegral: boolean;
+  dispHorarios?: string | null;
   createdAt: string;
   usuario: {
     id: string;
@@ -86,6 +87,41 @@ interface DocenteItem {
   }[];
   atribuicoes?: any[];
 }
+
+export interface BlocoHorario {
+  id: string;
+  turno: 'MANHA' | 'TARDE' | 'NOITE';
+  bloco: string;
+  horario: string;
+  duracao: string;
+  intervaloApos?: string;
+  destaque?: string;
+}
+
+export const BLOCOS_HORARIOS_SENAI: BlocoHorario[] = [
+  // Manhã (07:30 às 11:45)
+  { id: 'M1', turno: 'MANHA', bloco: '1ª Aula', horario: '07:30 – 08:15', duracao: '45 min' },
+  { id: 'M2', turno: 'MANHA', bloco: '2ª Aula', horario: '08:15 – 09:00', duracao: '45 min' },
+  { id: 'M3', turno: 'MANHA', bloco: '3ª Aula', horario: '09:00 – 09:45', duracao: '45 min', intervaloApos: '☕ Intervalo: 09:45 – 10:15 (30 min)' },
+  { id: 'M4', turno: 'MANHA', bloco: '4ª Aula', horario: '10:15 – 11:00', duracao: '45 min' },
+  { id: 'M5', turno: 'MANHA', bloco: '5ª Aula', horario: '11:00 – 11:45', duracao: '45 min' },
+
+  // Tarde (13:15 às 17:30)
+  { id: 'T1', turno: 'TARDE', bloco: '1ª Aula', horario: '13:15 – 14:00', duracao: '45 min' },
+  { id: 'T2', turno: 'TARDE', bloco: '2ª Aula', horario: '14:00 – 14:45', duracao: '45 min' },
+  { id: 'T3', turno: 'TARDE', bloco: '3ª Aula', horario: '14:45 – 15:30', duracao: '45 min', intervaloApos: '☕ Intervalo: 15:30 – 16:00 (30 min)' },
+  { id: 'T4', turno: 'TARDE', bloco: '4ª Aula', horario: '16:00 – 16:45', duracao: '45 min' },
+  { id: 'T5', turno: 'TARDE', bloco: '5ª Aula', horario: '16:45 – 17:30', duracao: '45 min' },
+
+  // Noite (18:45 às 22:30 / ou até 21h30)
+  { id: 'N1', turno: 'NOITE', bloco: '1ª Aula', horario: '18:45 – 19:30', duracao: '45 min' },
+  { id: 'N2', turno: 'NOITE', bloco: '2ª Aula', horario: '19:30 – 20:15', duracao: '45 min' },
+  { id: 'N3', turno: 'NOITE', bloco: '3ª Aula', horario: '20:15 – 21:00', duracao: '45 min', destaque: 'Saída 21h00', intervaloApos: '☕ Intervalo: 21:00 – 21:15 (15 min)' },
+  { id: 'N4', turno: 'NOITE', bloco: '4ª Aula', horario: '21:15 – 22:00', duracao: '45 min', destaque: 'Até 21h30' },
+  { id: 'N5', turno: 'NOITE', bloco: '5ª Aula', horario: '21:45 – 22:30', duracao: '45 min', destaque: 'Término 22h30' },
+];
+
+export const TODOS_BLOCOS_IDS = BLOCOS_HORARIOS_SENAI.map((b) => b.id);
 
 export default function DocentesPage() {
   const [docentes, setDocentes] = useState<DocenteItem[]>([]);
@@ -117,10 +153,11 @@ export default function DocentesPage() {
     cargaHorariaContratada: 40,
     tipoContratacao: 'CLT 40h',
     observacoes: '',
-    dispManha: false,
-    dispTarde: false,
+    dispManha: true,
+    dispTarde: true,
     dispNoite: false,
-    dispIntegral: true,
+    dispIntegral: false,
+    dispHorarios: ['M1', 'M2', 'M3', 'M4', 'M5', 'T1', 'T2', 'T3', 'T4', 'T5'] as string[],
     areasIds: [] as string[],
     competenciasIds: [] as string[],
   });
@@ -162,10 +199,11 @@ export default function DocentesPage() {
       cargaHorariaContratada: 40,
       tipoContratacao: 'CLT 40h',
       observacoes: '',
-      dispManha: false,
-      dispTarde: false,
+      dispManha: true,
+      dispTarde: true,
       dispNoite: false,
-      dispIntegral: true,
+      dispIntegral: false,
+      dispHorarios: ['M1', 'M2', 'M3', 'M4', 'M5', 'T1', 'T2', 'T3', 'T4', 'T5'],
       areasIds: areas.length > 0 ? [areas[0].id] : [],
       competenciasIds: [],
     });
@@ -177,6 +215,30 @@ export default function DocentesPage() {
   // Abrir Modal de Edição
   const handleOpenEdit = (docente: DocenteItem) => {
     setSelectedDocente(docente);
+
+    let parsedHorarios: string[] = [];
+    if (docente.dispHorarios) {
+      try {
+        parsedHorarios = JSON.parse(docente.dispHorarios);
+      } catch (e) {
+        console.error('Erro ao fazer parse de dispHorarios:', e);
+      }
+    }
+
+    if (!parsedHorarios || parsedHorarios.length === 0) {
+      if (docente.dispIntegral) {
+        parsedHorarios = [...TODOS_BLOCOS_IDS];
+      } else {
+        if (docente.dispManha) parsedHorarios.push('M1', 'M2', 'M3', 'M4', 'M5');
+        if (docente.dispTarde) parsedHorarios.push('T1', 'T2', 'T3', 'T4', 'T5');
+        if (docente.dispNoite) parsedHorarios.push('N1', 'N2', 'N3', 'N4', 'N5');
+      }
+    }
+
+    const hasManha = parsedHorarios.some((h) => h.startsWith('M'));
+    const hasTarde = parsedHorarios.some((h) => h.startsWith('T'));
+    const hasNoite = parsedHorarios.some((h) => h.startsWith('N'));
+
     setFormData({
       nome: docente.usuario.nome,
       email: docente.usuario.email,
@@ -185,10 +247,11 @@ export default function DocentesPage() {
       cargaHorariaContratada: docente.cargaHorariaContratada,
       tipoContratacao: docente.tipoContratacao,
       observacoes: docente.observacoes || '',
-      dispManha: docente.dispManha,
-      dispTarde: docente.dispTarde,
-      dispNoite: docente.dispNoite,
-      dispIntegral: docente.dispIntegral,
+      dispManha: hasManha,
+      dispTarde: hasTarde,
+      dispNoite: hasNoite,
+      dispIntegral: hasManha && hasTarde && hasNoite,
+      dispHorarios: parsedHorarios,
       areasIds: docente.areas.map((a) => a.area.id),
       competenciasIds: docente.competencias.map((c) => c.uc.id),
     });
@@ -267,6 +330,85 @@ export default function DocentesPage() {
         updated = [...prev.competenciasIds, ...toAdd];
       }
       return { ...prev, competenciasIds: updated };
+    });
+  };
+
+  // Toggle de seleção de Bloco de Aula individual (45 min)
+  const handleToggleBloco = (blocoId: string) => {
+    setFormData((prev) => {
+      const exists = prev.dispHorarios.includes(blocoId);
+      const newHorarios = exists
+        ? prev.dispHorarios.filter((id) => id !== blocoId)
+        : [...prev.dispHorarios, blocoId];
+
+      const hasManha = newHorarios.some((h) => h.startsWith('M'));
+      const hasTarde = newHorarios.some((h) => h.startsWith('T'));
+      const hasNoite = newHorarios.some((h) => h.startsWith('N'));
+      const hasIntegral = hasManha && hasTarde && hasNoite;
+
+      return {
+        ...prev,
+        dispHorarios: newHorarios,
+        dispManha: hasManha,
+        dispTarde: hasTarde,
+        dispNoite: hasNoite,
+        dispIntegral: hasIntegral,
+      };
+    });
+  };
+
+  // Toggle rápido de turno completo (Manhã, Tarde, Noite, Integral)
+  const handleToggleTurnoCompleto = (turno: 'MANHA' | 'TARDE' | 'NOITE' | 'INTEGRAL') => {
+    setFormData((prev) => {
+      let newHorarios = [...prev.dispHorarios];
+      const manhaIds = ['M1', 'M2', 'M3', 'M4', 'M5'];
+      const tardeIds = ['T1', 'T2', 'T3', 'T4', 'T5'];
+      const noiteIds = ['N1', 'N2', 'N3', 'N4', 'N5'];
+
+      if (turno === 'MANHA') {
+        const allSelected = manhaIds.every((id) => newHorarios.includes(id));
+        if (allSelected) {
+          newHorarios = newHorarios.filter((id) => !manhaIds.includes(id));
+        } else {
+          newHorarios = Array.from(new Set([...newHorarios, ...manhaIds]));
+        }
+      } else if (turno === 'TARDE') {
+        const allSelected = tardeIds.every((id) => newHorarios.includes(id));
+        if (allSelected) {
+          newHorarios = newHorarios.filter((id) => !tardeIds.includes(id));
+        } else {
+          newHorarios = Array.from(new Set([...newHorarios, ...tardeIds]));
+        }
+      } else if (turno === 'NOITE') {
+        const allSelected = noiteIds.every((id) => newHorarios.includes(id));
+        if (allSelected) {
+          newHorarios = newHorarios.filter((id) => !noiteIds.includes(id));
+        } else {
+          newHorarios = Array.from(new Set([...newHorarios, ...noiteIds]));
+        }
+      } else if (turno === 'INTEGRAL') {
+        const allIds = [...manhaIds, ...tardeIds, ...noiteIds];
+        const allSelected = allIds.every((id) => newHorarios.includes(id));
+        if (allSelected) {
+          newHorarios = [];
+        } else {
+          newHorarios = allIds;
+        }
+      }
+
+      const hasManha = newHorarios.some((h) => h.startsWith('M'));
+      const hasTarde = newHorarios.some((h) => h.startsWith('T'));
+      const hasNoite = newHorarios.some((h) => h.startsWith('N'));
+      const hasIntegral = hasManha && hasTarde && hasNoite;
+
+      return {
+        ...prev,
+        dispHorarios: newHorarios,
+        dispManha: hasManha,
+        dispTarde: hasTarde,
+        dispNoite: hasNoite,
+        dispIntegral: hasIntegral,
+      };
     });
   };
 
@@ -1099,7 +1241,7 @@ export default function DocentesPage() {
               </div>
             )}
 
-            {/* ABA 2: Contrato & Turnos */}
+            {/* ABA 2: Contrato & Turnos com Desmembramento de Blocos (Padrão SENAI) */}
             {activeTab === 'contrato' && (
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1141,78 +1283,250 @@ export default function DocentesPage() {
                   </div>
                 </div>
 
+                {/* Seleção Rápida de Turnos */}
                 <div>
-                  <Label className="text-xs font-semibold block mb-2">
-                    Disponibilidade Semanal de Horários (Turnos)
-                  </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <label className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
-                      formData.dispManha 
-                        ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 font-semibold' 
-                        : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-50'
-                    }`}>
-                      <input
-                        type="checkbox"
-                        checked={formData.dispManha}
-                        onChange={(e) => setFormData({ ...formData, dispManha: e.target.checked })}
-                        className="w-4 h-4 rounded text-[#e30613] focus:ring-[#e30613]"
-                      />
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs font-bold text-gray-900 dark:text-neutral-100 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-[#e30613]" />
+                      Atalhos Rápidos de Turnos
+                    </Label>
+                    <span className="text-[11px] text-gray-500 dark:text-neutral-400">
+                      Clique para marcar/desmarcar o período completo
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleTurnoCompleto('MANHA')}
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                        formData.dispManha
+                          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 font-semibold ring-1 ring-amber-400/50'
+                          : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                      }`}
+                    >
                       <div>
                         <span className="block font-bold">Manhã</span>
-                        <span className="text-[10px] text-gray-400 font-normal">07:30 às 11:45</span>
+                        <span className="text-[10px] opacity-75">07:30 às 11:45</span>
                       </div>
-                    </label>
+                      <span className={`w-2 h-2 rounded-full ${formData.dispManha ? 'bg-amber-500' : 'bg-gray-300 dark:bg-neutral-700'}`} />
+                    </button>
 
-                    <label className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
-                      formData.dispTarde 
-                        ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-300 dark:border-orange-800 text-orange-900 dark:text-orange-200 font-semibold' 
-                        : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-50'
-                    }`}>
-                      <input
-                        type="checkbox"
-                        checked={formData.dispTarde}
-                        onChange={(e) => setFormData({ ...formData, dispTarde: e.target.checked })}
-                        className="w-4 h-4 rounded text-[#e30613] focus:ring-[#e30613]"
-                      />
+                    <button
+                      type="button"
+                      onClick={() => handleToggleTurnoCompleto('TARDE')}
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                        formData.dispTarde
+                          ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-300 dark:border-orange-800 text-orange-900 dark:text-orange-200 font-semibold ring-1 ring-orange-400/50'
+                          : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                      }`}
+                    >
                       <div>
                         <span className="block font-bold">Tarde</span>
-                        <span className="text-[10px] text-gray-400 font-normal">13:15 às 17:30</span>
+                        <span className="text-[10px] opacity-75">13:15 às 17:30</span>
                       </div>
-                    </label>
+                      <span className={`w-2 h-2 rounded-full ${formData.dispTarde ? 'bg-orange-500' : 'bg-gray-300 dark:bg-neutral-700'}`} />
+                    </button>
 
-                    <label className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
-                      formData.dispNoite 
-                        ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 font-semibold' 
-                        : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-50'
-                    }`}>
-                      <input
-                        type="checkbox"
-                        checked={formData.dispNoite}
-                        onChange={(e) => setFormData({ ...formData, dispNoite: e.target.checked })}
-                        className="w-4 h-4 rounded text-[#e30613] focus:ring-[#e30613]"
-                      />
+                    <button
+                      type="button"
+                      onClick={() => handleToggleTurnoCompleto('NOITE')}
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                        formData.dispNoite
+                          ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 font-semibold ring-1 ring-indigo-400/50'
+                          : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                      }`}
+                    >
                       <div>
                         <span className="block font-bold">Noite</span>
-                        <span className="text-[10px] text-gray-400 font-normal">18:45 às 22:30</span>
+                        <span className="text-[10px] opacity-75">18:45 às 22:30</span>
                       </div>
-                    </label>
+                      <span className={`w-2 h-2 rounded-full ${formData.dispNoite ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-700'}`} />
+                    </button>
 
-                    <label className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
-                      formData.dispIntegral 
-                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-semibold' 
-                        : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-50'
-                    }`}>
-                      <input
-                        type="checkbox"
-                        checked={formData.dispIntegral}
-                        onChange={(e) => setFormData({ ...formData, dispIntegral: e.target.checked })}
-                        className="w-4 h-4 rounded text-[#e30613] focus:ring-[#e30613]"
-                      />
+                    <button
+                      type="button"
+                      onClick={() => handleToggleTurnoCompleto('INTEGRAL')}
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                        formData.dispIntegral
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-semibold ring-1 ring-emerald-400/50'
+                          : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                      }`}
+                    >
                       <div>
                         <span className="block font-bold text-emerald-700 dark:text-emerald-300">Integral</span>
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">Flexível</span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Todos os Turnos</span>
                       </div>
-                    </label>
+                      <span className={`w-2 h-2 rounded-full ${formData.dispIntegral ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-neutral-700'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Grade Desmembrada por Blocos de Aula (45 min) */}
+                <div className="bg-gray-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-gray-200 dark:border-neutral-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-gray-200 dark:border-neutral-700/80 pb-2.5">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-neutral-100 flex items-center gap-1.5">
+                        <CalendarDays className="w-4 h-4 text-[#e30613]" />
+                        Desmembramento por Blocos de Aula (Padrão SENAI - 45 min)
+                      </h4>
+                      <p className="text-[11px] text-gray-500 dark:text-neutral-400">
+                        Marque ou desmarque aulas individuais caso o docente não fique o período integral.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-red-100 dark:bg-red-950/60 text-[#e30613]">
+                        {formData.dispHorarios.length} de {TODOS_BLOCOS_IDS.length} aulas selecionadas
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 3 Colunas dos Turnos */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs pt-1">
+                    
+                    {/* COLUNA 1: MANHÃ */}
+                    <div className="bg-white dark:bg-neutral-900 p-3.5 rounded-xl border border-gray-200 dark:border-neutral-800 space-y-2">
+                      <div className="flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-2">
+                        <span className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                          ☀️ Manhã (07:30 – 11:45)
+                        </span>
+                        <span className="text-[10px] font-semibold text-gray-400">5 Aulas</span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        {BLOCOS_HORARIOS_SENAI.filter((b) => b.turno === 'MANHA').map((bloco) => {
+                          const isChecked = formData.dispHorarios.includes(bloco.id);
+                          return (
+                            <div key={bloco.id} className="space-y-1">
+                              <label className={`flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
+                                isChecked
+                                  ? 'bg-amber-50/70 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200 font-semibold'
+                                  : 'bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                              }`}>
+                                <div className="flex items-center gap-2.5">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => handleToggleBloco(bloco.id)}
+                                    className="w-3.5 h-3.5 rounded text-[#e30613] focus:ring-[#e30613]"
+                                  />
+                                  <span className="font-bold text-[11px]">{bloco.bloco}</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[11px] text-gray-600 dark:text-neutral-300">{bloco.horario}</span>
+                                </div>
+                              </label>
+
+                              {bloco.intervaloApos && (
+                                <div className="py-1 px-2 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-950/20 rounded border border-amber-100 dark:border-amber-900/30 text-center">
+                                  {bloco.intervaloApos}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* COLUNA 2: TARDE */}
+                    <div className="bg-white dark:bg-neutral-900 p-3.5 rounded-xl border border-gray-200 dark:border-neutral-800 space-y-2">
+                      <div className="flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-2">
+                        <span className="font-bold text-orange-900 dark:text-orange-300 flex items-center gap-1.5">
+                          🌤️ Tarde (13:15 – 17:30)
+                        </span>
+                        <span className="text-[10px] font-semibold text-gray-400">5 Aulas</span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        {BLOCOS_HORARIOS_SENAI.filter((b) => b.turno === 'TARDE').map((bloco) => {
+                          const isChecked = formData.dispHorarios.includes(bloco.id);
+                          return (
+                            <div key={bloco.id} className="space-y-1">
+                              <label className={`flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
+                                isChecked
+                                  ? 'bg-orange-50/70 dark:bg-orange-950/30 border-orange-300 dark:border-orange-800 text-orange-950 dark:text-orange-200 font-semibold'
+                                  : 'bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                              }`}>
+                                <div className="flex items-center gap-2.5">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => handleToggleBloco(bloco.id)}
+                                    className="w-3.5 h-3.5 rounded text-[#e30613] focus:ring-[#e30613]"
+                                  />
+                                  <span className="font-bold text-[11px]">{bloco.bloco}</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[11px] text-gray-600 dark:text-neutral-300">{bloco.horario}</span>
+                                </div>
+                              </label>
+
+                              {bloco.intervaloApos && (
+                                <div className="py-1 px-2 text-[10px] font-medium text-orange-700 dark:text-orange-400 bg-orange-50/50 dark:bg-orange-950/20 rounded border border-orange-100 dark:border-orange-900/30 text-center">
+                                  {bloco.intervaloApos}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* COLUNA 3: NOITE (com suporte até 21h30) */}
+                    <div className="bg-white dark:bg-neutral-900 p-3.5 rounded-xl border border-gray-200 dark:border-neutral-800 space-y-2">
+                      <div className="flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-2">
+                        <span className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                          🌙 Noite (18:45 – 22:30)
+                        </span>
+                        <span className="text-[10px] font-semibold text-gray-400">Flexível</span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        {BLOCOS_HORARIOS_SENAI.filter((b) => b.turno === 'NOITE').map((bloco) => {
+                          const isChecked = formData.dispHorarios.includes(bloco.id);
+                          return (
+                            <div key={bloco.id} className="space-y-1">
+                              <label className={`flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
+                                isChecked
+                                  ? 'bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-800 text-indigo-950 dark:text-indigo-200 font-semibold'
+                                  : 'bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800 text-gray-600 dark:text-neutral-400 hover:bg-gray-50'
+                              }`}>
+                                <div className="flex items-center gap-2.5">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => handleToggleBloco(bloco.id)}
+                                    className="w-3.5 h-3.5 rounded text-[#e30613] focus:ring-[#e30613]"
+                                  />
+                                  <div>
+                                    <span className="font-bold text-[11px]">{bloco.bloco}</span>
+                                    {bloco.destaque && (
+                                      <span className="ml-1.5 text-[9px] px-1.5 py-0.2 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 font-bold">
+                                        {bloco.destaque}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[11px] text-gray-600 dark:text-neutral-300">{bloco.horario}</span>
+                                </div>
+                              </label>
+
+                              {bloco.intervaloApos && (
+                                <div className="py-1 px-2 text-[10px] font-medium text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20 rounded border border-indigo-100 dark:border-indigo-900/30 text-center">
+                                  {bloco.intervaloApos}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="p-2 rounded bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 text-[10px] text-indigo-800 dark:text-indigo-300">
+                        💡 <strong>Dica:</strong> Para professores com saída até <strong>21h30</strong>, marque da 1ª à 3ª aula (ou 4ª).
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -1223,7 +1537,7 @@ export default function DocentesPage() {
                   <textarea
                     id="observacoes"
                     rows={3}
-                    placeholder="Ex: Disponibilidade para sábados letivos; especialização em CLP Siemens..."
+                    placeholder="Ex: Disponibilidade noturna até 21h30; sábados letivos; especialização em CLP..."
                     value={formData.observacoes}
                     onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                     className="w-full mt-1.5 p-3 text-xs bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e30613]"
@@ -1486,6 +1800,57 @@ export default function DocentesPage() {
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Detalhamento dos Blocos de Aula Ativos (Padrão SENAI) */}
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-2">
+                <span className="text-gray-900 dark:text-neutral-100 font-bold block text-xs flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-[#e30613]" />
+                  Blocos de Horários Habilitados (45 min):
+                </span>
+                
+                {(() => {
+                  let horariosList: string[] = [];
+                  if (selectedDocente.dispHorarios) {
+                    try {
+                      horariosList = JSON.parse(selectedDocente.dispHorarios);
+                    } catch (e) {}
+                  }
+                  if (horariosList.length === 0) {
+                    if (selectedDocente.dispManha) horariosList.push('M1', 'M2', 'M3', 'M4', 'M5');
+                    if (selectedDocente.dispTarde) horariosList.push('T1', 'T2', 'T3', 'T4', 'T5');
+                    if (selectedDocente.dispNoite) horariosList.push('N1', 'N2', 'N3', 'N4', 'N5');
+                  }
+
+                  const blocosAtivos = BLOCOS_HORARIOS_SENAI.filter((b) => horariosList.includes(b.id));
+
+                  if (blocosAtivos.length === 0) {
+                    return <span className="text-gray-400 italic text-[11px]">Nenhum bloco específico habilitado.</span>;
+                  }
+
+                  return (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {blocosAtivos.map((bloco) => {
+                        const isManha = bloco.turno === 'MANHA';
+                        const isTarde = bloco.turno === 'TARDE';
+                        return (
+                          <span
+                            key={bloco.id}
+                            className={`px-2.5 py-1 rounded-md text-[10px] font-semibold border ${
+                              isManha
+                                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
+                                : isTarde
+                                ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-800/60'
+                                : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60'
+                            }`}
+                          >
+                            {bloco.turno.charAt(0) + bloco.turno.slice(1).toLowerCase()} • {bloco.bloco} ({bloco.horario})
+                          </span>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Observações */}
