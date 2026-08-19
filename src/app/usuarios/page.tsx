@@ -1007,35 +1007,63 @@ export default function UsuariosPage() {
       {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
       {/* ========================================================================= */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="sm:max-w-md w-[95vw] p-6">
-          <DialogHeader className="border-b border-gray-200 dark:border-neutral-800 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#e30613]">
+        <DialogContent className="sm:max-w-lg md:max-w-xl w-[95vw] p-7 rounded-2xl">
+          <DialogHeader className="border-b border-gray-200 dark:border-neutral-800 pb-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/60 text-[#e30613] border border-red-100 dark:border-red-900/40">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div>
-                <DialogTitle className="text-base font-bold text-gray-900 dark:text-neutral-100">
+                <DialogTitle className="text-lg font-bold text-gray-900 dark:text-neutral-100">
                   Confirmar Exclusão de Usuário
                 </DialogTitle>
-                <DialogDescription className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">
-                  Esta ação é irreversível e removerá as credenciais do usuário.
+                <DialogDescription className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
+                  Esta ação é irreversível e removerá as credenciais e acessos do usuário.
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
-          <div className="py-3 text-xs text-gray-600 dark:text-neutral-300">
-            Tem certeza de que deseja excluir permanentemente o usuário{' '}
-            <strong className="text-gray-900 dark:text-neutral-100">{selectedUsuario?.nome}</strong> (
-            {selectedUsuario?.email})?
+          <div className="py-4 space-y-3">
+            <p className="text-sm text-gray-700 dark:text-neutral-300">
+              Tem certeza de que deseja excluir permanentemente o cadastro do colaborador abaixo?
+            </p>
+
+            {selectedUsuario && (
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-800/40 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-gray-900 dark:text-neutral-100">
+                    {selectedUsuario.nome}
+                  </span>
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/60 text-[#e30613]">
+                    {selectedUsuario.perfil === 'SECRETARIA' ? 'ADMINISTRATIVO' : selectedUsuario.perfil}
+                  </span>
+                </div>
+                <div className="text-xs font-mono text-gray-600 dark:text-neutral-400">
+                  {selectedUsuario.email}
+                </div>
+                {selectedUsuario.nif && (
+                  <div className="text-xs text-gray-500 dark:text-neutral-400 font-mono">
+                    NIF / Matrícula: <strong className="text-gray-800 dark:text-neutral-200">{selectedUsuario.nif}</strong>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>Atenção:</strong> Se o usuário possuir aulas ou turmas atribuídas ativas, será necessário desvinculá-las antes de prosseguir com a exclusão.
+              </span>
+            </div>
           </div>
 
-          <DialogFooter className="pt-3 border-t border-gray-100 dark:border-neutral-800">
+          <DialogFooter className="pt-4 border-t border-gray-100 dark:border-neutral-800 gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsDeleteModalOpen(false)}
-              className="text-xs"
+              className="text-xs h-10 px-5 rounded-xl cursor-pointer"
             >
               Cancelar
             </Button>
@@ -1043,9 +1071,10 @@ export default function UsuariosPage() {
               type="button"
               disabled={isSubmitting}
               onClick={handleDeleteSubmit}
-              className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold"
+              className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-bold h-10 px-5 rounded-xl cursor-pointer gap-1.5 shadow-sm"
             >
-              Excluir Usuário
+              <Trash2 className="w-4 h-4" />
+              {isSubmitting ? 'Excluindo...' : 'Excluir Usuário'}
             </Button>
           </DialogFooter>
         </DialogContent>
