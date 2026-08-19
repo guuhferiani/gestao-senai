@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { 
   BookOpen, 
   Layers, 
@@ -8,15 +10,18 @@ import {
   Search, 
   Pencil, 
   Trash2, 
-  AlertTriangle,
-  AlertCircle,
-  BarChart2,
-  Filter,
-  Loader2,
-  FolderPlus,
-  FilePlus,
-  CheckCircle2,
-  X
+  AlertTriangle, 
+  AlertCircle, 
+  BarChart2, 
+  Filter, 
+  Loader2, 
+  FolderPlus, 
+  FilePlus, 
+  CheckCircle2, 
+  X,
+  ShieldAlert,
+  ArrowLeft,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +58,10 @@ interface AreaTecnologica {
 }
 
 export default function AreasPage() {
+  const { data: session, status } = useSession();
+  const userPerfil = (session?.user as any)?.perfil;
+  const isAuthorized = userPerfil === 'COORDENADOR' || userPerfil === 'SECRETARIA';
+
   const [areas, setAreas] = useState<AreaTecnologica[]>([]);
   const [ucs, setUcs] = useState<UnidadeCurricular[]>([]);
   const [loading, setLoading] = useState(true);
@@ -254,6 +263,42 @@ export default function AreasPage() {
     if (areas.length === 0) return '0';
     return (ucs.length / areas.length).toFixed(1);
   }, [areas, ucs]);
+
+  // Se estiver carregando sessão
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-2">
+          <RefreshCw className="w-6 h-6 animate-spin text-[#e30613]" />
+          <span className="text-xs text-gray-500 font-medium">Verificando permissões...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Se perfil não tiver autorização (Docente ou OPP)
+  if (!isAuthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center animate-in fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-950/50 text-[#e30613] flex items-center justify-center mb-4 shadow-sm border border-red-200 dark:border-red-900/50">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+          Acesso Restrito
+        </h2>
+        <p className="text-xs text-gray-500 dark:text-neutral-400 mt-2 max-w-md leading-relaxed">
+          A gestão de <strong>Áreas Tecnológicas & Unidades Curriculares</strong> é restrita exclusivamente à <strong>Coordenação</strong> e <strong>Secretaria Administrativa</strong>. Seu perfil atual é <span className="font-bold text-gray-800 dark:text-neutral-200">{userPerfil || 'DOCENTE'}</span>.
+        </p>
+        <div className="mt-6">
+          <Link href="/dashboard">
+            <Button className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold gap-2 shadow-sm cursor-pointer">
+              <ArrowLeft className="w-4 h-4" /> Voltar ao Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

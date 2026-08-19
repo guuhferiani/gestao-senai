@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { 
   Users, 
   Plus, 
@@ -124,6 +125,10 @@ export const BLOCOS_HORARIOS_SENAI: BlocoHorario[] = [
 export const TODOS_BLOCOS_IDS = BLOCOS_HORARIOS_SENAI.map((b) => b.id);
 
 export default function DocentesPage() {
+  const { data: session } = useSession();
+  const userPerfil = (session?.user as any)?.perfil || 'DOCENTE';
+  const isCoordOrSec = userPerfil === 'COORDENADOR' || userPerfil === 'SECRETARIA';
+
   const [docentes, setDocentes] = useState<DocenteItem[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
@@ -570,13 +575,15 @@ export default function DocentesPage() {
             </button>
           </div>
 
-          <Button
-            onClick={handleOpenCreate}
-            className="bg-[#e30613] hover:bg-[#b7040f] text-white gap-2 font-semibold shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Novo Docente
-          </Button>
+          {isCoordOrSec && (
+            <Button
+              onClick={handleOpenCreate}
+              className="bg-[#e30613] hover:bg-[#b7040f] text-white gap-2 font-semibold shadow-sm cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Novo Docente
+            </Button>
+          )}
         </div>
       </div>
 
@@ -734,10 +741,10 @@ export default function DocentesPage() {
               ? 'Tente ajustar os filtros ou o termo de busca para encontrar o professor desejado.'
               : 'Clique em "+ Novo Docente" para cadastrar o primeiro professor da unidade.'}
           </p>
-          {docentes.length === 0 && (
+          {docentes.length === 0 && isCoordOrSec && (
             <Button
               onClick={handleOpenCreate}
-              className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold mt-2"
+              className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold mt-2 cursor-pointer"
             >
               <Plus className="w-4 h-4 mr-1.5" /> Cadastrar Primeiro Docente
             </Button>
@@ -908,20 +915,24 @@ export default function DocentesPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleOpenEdit(docente)}
-                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors"
-                          title="Editar Docente"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenDelete(docente)}
-                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-colors"
-                          title="Excluir Docente"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {isCoordOrSec && (
+                          <>
+                            <button
+                              onClick={() => handleOpenEdit(docente)}
+                              className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors cursor-pointer"
+                              title="Editar Docente"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDelete(docente)}
+                              className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-colors cursor-pointer"
+                              title="Excluir Docente"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1068,26 +1079,28 @@ export default function DocentesPage() {
                     <Eye className="w-3.5 h-3.5" /> Detalhes
                   </Button>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOpenEdit(docente)}
-                    className="text-blue-600 h-7 w-7 p-0"
-                    title="Editar"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOpenDelete(docente)}
-                    className="text-red-600 h-7 w-7 p-0"
-                    title="Excluir"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                {isCoordOrSec && (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenEdit(docente)}
+                      className="text-blue-600 h-7 w-7 p-0 cursor-pointer"
+                      title="Editar"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenDelete(docente)}
+                      className="text-red-600 h-7 w-7 p-0 cursor-pointer"
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

@@ -109,16 +109,20 @@ Durante a atribuição, o sistema deverá exibir simultaneamente:
 
 **Perfis de Usuário:**
 
-1. **Coordenador:**
+1. **Coordenador (Gestão):**
    - Possui acesso total ao sistema.
    - Permissões: Cadastro de Áreas, UCs, Docentes, Usuários; Criação de Turmas; Atribuição de Professores; Alteração de qualquer programação; Visualização de todos os docentes; Relatórios gerenciais; Indicadores de ocupação; Painel completo de planejamento.
 
-2. **OPP (Orientador de Prática Profissional):**
+2. **Secretaria / Assistente Administrativo:**
+   - Possui acesso administrativo completo (mesmo nível executivo que a Coordenação).
+   - Permissões: Cadastro, edição e consulta de Áreas Tecnológicas, UCs, Docentes (contratos, turnos e competências), Turmas e Atribuições; Emissão de relatórios e suporte operacional aos docentes e coordenadores.
+
+3. **OPP (Orientador de Prática Profissional):**
    - Possui acesso restrito à(s) sua(s) área(s) de atuação.
    - Permissões: Visualizar docentes vinculados à sua área; Criar turmas da sua área; Atribuir professores às turmas sob sua responsabilidade; Consultar calendário dos docentes da sua área; Acompanhar indicadores de ocupação dos professores vinculados.
    - Restrições: Não poderá visualizar docentes pertencentes a outras áreas nem alterar cadastros administrativos.
 
-3. **Docente:**
+4. **Docente:**
    - Possui acesso exclusivamente às informações referentes às suas atribuições.
    - Permissões: Visualizar seu calendário mensal; Consultar turmas atribuídas, UCs programadas, carga horária programada e histórico de atribuições.
    - Restrições: Não poderá editar turmas, alterar atribuições ou visualizar informações de outros docentes.

@@ -85,13 +85,15 @@ export default function NovoUsuarioPage() {
 
             <div className="space-y-2">
               <Label htmlFor="perfil" className="text-neutral-700 dark:text-neutral-300">Perfil de Acesso</Label>
-              <Select defaultValue="PROFESSOR">
-                <SelectTrigger className="h-11 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 focus:ring-[#E52229]">
+              <Select defaultValue="DOCENTE">
+                <SelectTrigger className="w-full h-11 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 focus:ring-[#E52229]">
                   <SelectValue placeholder="Selecione um perfil" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PROFESSOR">Professor (Acesso às Turmas)</SelectItem>
-                  <SelectItem value="COORDENADOR">Coordenador (Acesso Total)</SelectItem>
+                <SelectContent className="w-full min-w-[260px]">
+                  <SelectItem value="DOCENTE">Docente</SelectItem>
+                  <SelectItem value="COORDENADOR">Coordenador</SelectItem>
+                  <SelectItem value="SECRETARIA">Administrativo</SelectItem>
+                  <SelectItem value="OPP">Orientador (OPP)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

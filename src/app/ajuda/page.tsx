@@ -35,6 +35,11 @@ interface FAQItem {
 
 const FAQS: FAQItem[] = [
   {
+    pergunta: 'Quais permissões os funcionários da Secretaria e Assistentes possuem?',
+    resposta: 'Os usuários com perfil "Secretaria / Assistente" possuem acesso administrativo integral (mesmo nível da Coordenação). Eles podem cadastrar e editar Áreas, UCs, Docentes (turnos, contratos e competências), Turmas, gerenciar a Matriz de Atribuição de Aulas e gerar todos os Relatórios e Diagnósticos da unidade.',
+    categoria: 'gestor',
+  },
+  {
     pergunta: 'Como funciona a validação de disponibilidade para docentes que saem às 21h30 no período noturno?',
     resposta: 'No cadastro/edição do Docente (Aba 2 - Contrato & Turnos), você pode marcar apenas os primeiros blocos de 45 min da noite (ex: 18h45 às 21h30 - 1ª à 3ª aula). Na Matriz de Atribuição, o sistema valida automaticamente o horário da turma: se a turma tiver aula após as 21h30, o docente será listado como Indisponível/Ocupado para evitar choques de agenda.',
     categoria: 'gestor',
@@ -150,7 +155,7 @@ export default function AjudaPage() {
           }`}
         >
           <Users className="w-4 h-4" />
-          Trilha do Gestor (Coordenador & OPP)
+          Trilha do Gestor (Coordenação, Secretaria & OPP)
         </button>
 
         <button
@@ -200,7 +205,7 @@ export default function AjudaPage() {
               <span className="w-6 h-6 rounded-full bg-[#e30613] text-white text-xs font-bold flex items-center justify-center">
                 ★
               </span>
-              Guia Completo do Gestor: Fluxo de Planejamento Acadêmico
+              Guia Completo da Gestão: Coordenação & Secretaria Administrativa
             </h2>
             <p className="text-xs text-gray-600 dark:text-neutral-300 mt-1">
               Siga os 5 passos sequenciais abaixo para estruturar cursos, cadastrar docentes, programar turmas e realizar atribuições inteligentes sem conflitos.
@@ -511,6 +516,15 @@ export default function AjudaPage() {
               </span>
               <p className="text-gray-600 dark:text-neutral-300">
                 A disponibilidade semanal é dividida em blocos de aula de 45 minutos com intervalos oficiais (Manhã 15m, Tarde 15m, Noite 15m) e suporte a docentes noturnos com saída às 21h30.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-gray-50 dark:bg-neutral-800/50 border border-gray-200 dark:border-neutral-700/60 space-y-2 md:col-span-2">
+              <span className="font-bold text-gray-900 dark:text-neutral-100 block">
+                5. Perfis de Acesso & Nível Administrativo (Coordenação & Secretaria)
+              </span>
+              <p className="text-gray-600 dark:text-neutral-300">
+                Tanto os <strong>Coordenadores</strong> quanto os funcionários da <strong>Secretaria / Assistentes</strong> possuem acesso administrativo total para manutenção de turmas, docentes, matriz de atribuição e relatórios. Orientadores (OPP) atuam em suas áreas específicas e Docentes acessam suas respectivas agendas.
               </p>
             </div>
           </div>

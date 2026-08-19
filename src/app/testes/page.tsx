@@ -66,6 +66,21 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
     completed: true,
   },
   {
+    id: 'auth-2b',
+    category: '1. Autenticação e Sessão (Etapa 1)',
+    iconName: 'ShieldCheck',
+    title: 'Login de Secretaria / Assistente (Admin)',
+    description: 'Verificar se o login da Secretaria / Assistente concede acesso administrativo integral.',
+    testSteps: [
+      'Acessar /login',
+      'Inserir E-mail: secretaria@sp.senai.br',
+      'Inserir Senha: senai123',
+      'Clicar em "Entrar"'
+    ],
+    expectedResult: 'Autenticação bem-sucedida com acesso total à gestão de turmas, docentes, UCs e relatórios.',
+    completed: true,
+  },
+  {
     id: 'auth-3',
     category: '1. Autenticação e Sessão (Etapa 1)',
     iconName: 'ShieldCheck',

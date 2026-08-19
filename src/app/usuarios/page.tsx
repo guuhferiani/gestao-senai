@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { 
   Users, 
   ShieldCheck, 
+  ShieldAlert,
   Plus, 
   Search, 
   CheckCircle2, 
@@ -21,7 +24,8 @@ import {
   List,
   Eye,
   GraduationCap,
-  Briefcase
+  Briefcase,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +44,8 @@ interface UsuarioItem {
   id: string;
   nome: string;
   email: string;
-  perfil: 'COORDENADOR' | 'OPP' | 'DOCENTE';
+  nif?: string | null;
+  perfil: 'COORDENADOR' | 'SECRETARIA' | 'OPP' | 'DOCENTE';
   ativo: boolean;
   createdAt: string;
   updatedAt: string;
@@ -53,6 +58,9 @@ interface UsuarioItem {
 }
 
 export default function UsuariosPage() {
+  const { data: session, status } = useSession();
+  const userPerfil = (session?.user as any)?.perfil;
+
   const [usuarios, setUsuarios] = useState<UsuarioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,6 +72,7 @@ export default function UsuariosPage() {
   const [metricas, setMetricas] = useState({
     total: 0,
     coordenadores: 0,
+    secretaria: 0,
     opps: 0,
     docentes: 0,
   });
@@ -78,8 +87,9 @@ export default function UsuariosPage() {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
+    nif: '',
     senha: '',
-    perfil: 'DOCENTE' as 'COORDENADOR' | 'OPP' | 'DOCENTE',
+    perfil: 'DOCENTE' as 'COORDENADOR' | 'SECRETARIA' | 'OPP' | 'DOCENTE',
     ativo: true,
   });
 
@@ -88,7 +98,10 @@ export default function UsuariosPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const isAuthorized = userPerfil === 'COORDENADOR' || userPerfil === 'SECRETARIA';
+
   const fetchUsuarios = async () => {
+    if (!isAuthorized && status !== 'loading') return;
     try {
       setLoading(true);
       const res = await fetch('/api/usuarios');
@@ -98,6 +111,7 @@ export default function UsuariosPage() {
         setMetricas(data.metricas || {
           total: 0,
           coordenadores: 0,
+          secretaria: 0,
           opps: 0,
           docentes: 0,
         });
@@ -110,8 +124,10 @@ export default function UsuariosPage() {
   };
 
   useEffect(() => {
-    fetchUsuarios();
-  }, []);
+    if (status === 'authenticated' && isAuthorized) {
+      fetchUsuarios();
+    }
+  }, [status, userPerfil, isAuthorized]);
 
   const showFeedback = (type: 'success' | 'error', text: string) => {
     setFeedbackMessage({ type, text });
@@ -124,6 +140,7 @@ export default function UsuariosPage() {
     setFormData({
       nome: '',
       email: '',
+      nif: '',
       senha: '',
       perfil: 'DOCENTE',
       ativo: true,
@@ -137,6 +154,7 @@ export default function UsuariosPage() {
     setFormData({
       nome: usuario.nome,
       email: usuario.email,
+      nif: usuario.nif || '',
       senha: '',
       perfil: usuario.perfil,
       ativo: usuario.ativo,
@@ -185,14 +203,13 @@ export default function UsuariosPage() {
   // Submeter Redefinição de Senha
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedUsuario || !novaSenha.trim()) return;
-
+    if (!selectedUsuario) return;
     try {
       setIsSubmitting(true);
       const res = await fetch(`/api/usuarios/${selectedUsuario.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ novaSenha: novaSenha.trim() }),
+        body: JSON.stringify({ novaSenha }),
       });
 
       const data = await res.json();
@@ -260,7 +277,8 @@ export default function UsuariosPage() {
     return usuarios.filter((u) => {
       const matchesSearch =
         u.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchTerm.toLowerCase());
+        u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (u.nif && u.nif.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesPerfil = selectedPerfilFilter === 'ALL' || u.perfil === selectedPerfilFilter;
 
@@ -272,6 +290,42 @@ export default function UsuariosPage() {
       return matchesSearch && matchesPerfil && matchesStatus;
     });
   }, [usuarios, searchTerm, selectedPerfilFilter, selectedStatusFilter]);
+
+  // Se estiver carregando sessão
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-2">
+          <RefreshCw className="w-6 h-6 animate-spin text-[#e30613]" />
+          <span className="text-xs text-gray-500 font-medium">Verificando permissões...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Se perfil não tiver autorização (Docente ou OPP)
+  if (!isAuthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center animate-in fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-950/50 text-[#e30613] flex items-center justify-center mb-4 shadow-sm border border-red-200 dark:border-red-900/50">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+          Acesso Restrito
+        </h2>
+        <p className="text-xs text-gray-500 dark:text-neutral-400 mt-2 max-w-md leading-relaxed">
+          A área de <strong>Gestão de Usuários & Acessos</strong> é restrita exclusivamente à <strong>Coordenação</strong> e <strong>Secretaria Administrativa</strong>. Seu perfil atual é <span className="font-bold text-gray-800 dark:text-neutral-200">{userPerfil || 'DOCENTE'}</span>.
+        </p>
+        <div className="mt-6">
+          <Link href="/dashboard">
+            <Button className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold gap-2 shadow-sm cursor-pointer">
+              <ArrowLeft className="w-4 h-4" /> Voltar ao Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">
@@ -327,77 +381,95 @@ export default function UsuariosPage() {
         </div>
       )}
 
-      {/* 4 KPI Cards de Usuários */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* 5 KPI Cards de Usuários */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {/* Total de Usuários */}
-        <div className="bg-white dark:bg-neutral-900 p-5 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
               Total de Contas
             </span>
-            <div className="text-2xl font-extrabold text-gray-900 dark:text-neutral-100 mt-1">
+            <div className="text-xl font-extrabold text-gray-900 dark:text-neutral-100 mt-0.5">
               {metricas.total}
             </div>
-            <span className="text-[11px] text-gray-500 dark:text-neutral-400 font-medium">
-              Usuários cadastrados no sistema
+            <span className="text-[10px] text-gray-500 dark:text-neutral-400 font-medium">
+              Contas cadastradas
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#e30613]">
-            <Users className="w-6 h-6" />
+          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#e30613]">
+            <Users className="w-5 h-5" />
           </div>
         </div>
 
         {/* Coordenadores (Admin) */}
-        <div className="bg-white dark:bg-neutral-900 p-5 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
               Coordenadores
             </span>
-            <div className="text-2xl font-extrabold text-[#e30613] mt-1">
+            <div className="text-xl font-extrabold text-[#e30613] mt-0.5">
               {metricas.coordenadores}
             </div>
-            <span className="text-[11px] text-[#e30613] font-medium">
-              Acesso total administrativo
+            <span className="text-[10px] text-[#e30613] font-medium">
+              Gestão Geral (Admin)
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#e30613]">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#e30613]">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Administrativo (Secretaria) */}
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
+              Administrativo
+            </span>
+            <div className="text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
+              {metricas.secretaria || 0}
+            </div>
+            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+              Secretaria & Apoio
+            </span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <Briefcase className="w-5 h-5" />
           </div>
         </div>
 
         {/* Orientadores OPP */}
-        <div className="bg-white dark:bg-neutral-900 p-5 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
               Orientadores (OPP)
             </span>
-            <div className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">
+            <div className="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-0.5">
               {metricas.opps}
             </div>
-            <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">
-              Gestão de áreas e turmas
+            <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+              Gestão de turmas
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
-            <UserCog className="w-6 h-6" />
+          <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+            <UserCog className="w-5 h-5" />
           </div>
         </div>
 
         {/* Docentes */}
-        <div className="bg-white dark:bg-neutral-900 p-5 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
-              Docentes Ativos
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
+              Docentes
             </span>
-            <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
+            <div className="text-xl font-extrabold text-purple-600 dark:text-purple-400 mt-0.5">
               {metricas.docentes}
             </div>
-            <span className="text-[11px] text-purple-600 dark:text-purple-400 font-medium">
-              Corpo docente com acesso à agenda
+            <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
+              Acesso à agenda
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
-            <GraduationCap className="w-6 h-6" />
+          <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
+            <GraduationCap className="w-5 h-5" />
           </div>
         </div>
       </div>
@@ -425,9 +497,10 @@ export default function UsuariosPage() {
               icon={ShieldCheck}
               options={[
                 { value: 'ALL', label: 'Todos os Perfis de Acesso' },
-                { value: 'COORDENADOR', label: 'Coordenador (Admin)' },
-                { value: 'OPP', label: 'Orientador de Prática (OPP)' },
-                { value: 'DOCENTE', label: 'Docente (Professor)' },
+                { value: 'COORDENADOR', label: 'Coordenador' },
+                { value: 'SECRETARIA', label: 'Administrativo' },
+                { value: 'OPP', label: 'Orientador (OPP)' },
+                { value: 'DOCENTE', label: 'Docente' },
               ]}
             />
           </div>
@@ -514,6 +587,8 @@ export default function UsuariosPage() {
                           className={`w-9 h-9 rounded-full font-bold flex items-center justify-center text-xs shrink-0 ${
                             u.perfil === 'COORDENADOR'
                               ? 'bg-red-100 dark:bg-red-950/60 text-[#e30613]'
+                              : u.perfil === 'SECRETARIA'
+                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                               : u.perfil === 'OPP'
                               ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
                               : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300'
@@ -532,8 +607,15 @@ export default function UsuariosPage() {
                       </div>
                     </td>
 
-                    {/* E-mail */}
-                    <td className="py-4 px-6 font-mono text-xs">{u.email}</td>
+                    {/* E-mail & NIF */}
+                    <td className="py-4 px-6">
+                      <div className="font-mono text-xs text-gray-900 dark:text-neutral-100">{u.email}</div>
+                      {u.nif && (
+                        <div className="text-[10px] text-gray-400 font-mono mt-0.5">
+                          NIF: <span className="font-semibold text-gray-600 dark:text-neutral-400">{u.nif}</span>
+                        </div>
+                      )}
+                    </td>
 
                     {/* Perfil */}
                     <td className="py-4 px-6">
@@ -541,15 +623,18 @@ export default function UsuariosPage() {
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                           u.perfil === 'COORDENADOR'
                             ? 'bg-red-50 text-[#e30613] border-red-200/60 dark:bg-red-950/40 dark:border-red-800/40'
+                            : u.perfil === 'SECRETARIA'
+                            ? 'bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/40'
                             : u.perfil === 'OPP'
                             ? 'bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/40'
                             : 'bg-purple-50 text-purple-700 border-purple-200/60 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/40'
                         }`}
                       >
                         {u.perfil === 'COORDENADOR' && <ShieldCheck className="w-3 h-3" />}
+                        {u.perfil === 'SECRETARIA' && <Briefcase className="w-3 h-3" />}
                         {u.perfil === 'OPP' && <UserCog className="w-3 h-3" />}
                         {u.perfil === 'DOCENTE' && <GraduationCap className="w-3 h-3" />}
-                        {u.perfil}
+                        {u.perfil === 'SECRETARIA' ? 'ADMINISTRATIVO' : u.perfil}
                       </span>
                     </td>
 
@@ -619,6 +704,8 @@ export default function UsuariosPage() {
                       className={`w-10 h-10 rounded-full font-bold flex items-center justify-center text-sm shrink-0 ${
                         u.perfil === 'COORDENADOR'
                           ? 'bg-red-100 dark:bg-red-950/60 text-[#e30613]'
+                          : u.perfil === 'SECRETARIA'
+                          ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                           : u.perfil === 'OPP'
                           ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
                           : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300'
@@ -633,6 +720,11 @@ export default function UsuariosPage() {
                       <p className="text-xs text-gray-500 dark:text-neutral-400 font-mono">
                         {u.email}
                       </p>
+                      {u.nif && (
+                        <p className="text-[10px] text-gray-400 font-mono">
+                          NIF: {u.nif}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -649,12 +741,14 @@ export default function UsuariosPage() {
                     className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                       u.perfil === 'COORDENADOR'
                         ? 'bg-red-50 text-[#e30613] border-red-200/60 dark:bg-red-950/40 dark:border-red-800/40'
+                        : u.perfil === 'SECRETARIA'
+                        ? 'bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300'
                         : u.perfil === 'OPP'
                         ? 'bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300'
                         : 'bg-purple-50 text-purple-700 border-purple-200/60 dark:bg-purple-950/40 dark:text-purple-300'
                     }`}
                   >
-                    {u.perfil}
+                    {u.perfil === 'SECRETARIA' ? 'SECRETARIA' : u.perfil}
                   </span>
 
                   <span className="text-[11px] text-gray-400">
@@ -738,19 +832,34 @@ export default function UsuariosPage() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="email" className="text-xs font-semibold">
-                E-mail Institucional <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="carlos.silva@sp.senai.br"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                className="mt-1.5 text-xs h-10 rounded-xl"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="email" className="text-xs font-semibold">
+                  E-mail Institucional <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="carlos.silva@sp.senai.br"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="mt-1.5 text-xs h-10 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="nif" className="text-xs font-semibold">
+                  NIF / Matrícula SENAI
+                </Label>
+                <Input
+                  id="nif"
+                  placeholder="Ex: 1087407"
+                  value={formData.nif}
+                  onChange={(e) => setFormData({ ...formData, nif: e.target.value })}
+                  className="mt-1.5 text-xs h-10 rounded-xl font-mono"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -764,9 +873,10 @@ export default function UsuariosPage() {
                     onChange={(val) => setFormData({ ...formData, perfil: val as any })}
                     icon={ShieldCheck}
                     options={[
-                      { value: 'COORDENADOR', label: 'Coordenador (Admin Geral)' },
-                      { value: 'OPP', label: 'Orientador de Prática (OPP)' },
-                      { value: 'DOCENTE', label: 'Docente (Professor)' },
+                      { value: 'COORDENADOR', label: 'Coordenador' },
+                      { value: 'SECRETARIA', label: 'Administrativo' },
+                      { value: 'OPP', label: 'Orientador (OPP)' },
+                      { value: 'DOCENTE', label: 'Docente' },
                     ]}
                   />
                 </div>
@@ -779,11 +889,13 @@ export default function UsuariosPage() {
                   </Label>
                   <Input
                     id="senha"
+                    name="senha"
                     type="password"
+                    autoComplete="new-password"
                     placeholder="Padrão: senai123"
                     value={formData.senha}
                     onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
-                    className="mt-1.5 text-xs h-10 rounded-xl"
+                    className="mt-1.5 text-xs h-10 rounded-xl font-mono"
                   />
                 </div>
               )}
@@ -859,12 +971,14 @@ export default function UsuariosPage() {
               </Label>
               <Input
                 id="novaSenha"
+                name="novaSenha"
                 type="password"
+                autoComplete="new-password"
                 placeholder="Insira a nova senha (mínimo 6 caracteres)"
                 value={novaSenha}
                 onChange={(e) => setNovaSenha(e.target.value)}
                 required
-                className="mt-1.5 text-xs h-10 rounded-xl"
+                className="mt-1.5 text-xs h-10 rounded-xl font-mono"
               />
             </div>
 

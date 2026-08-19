@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   Calendar, 
   Plus, 
@@ -105,6 +106,10 @@ const DIAS_SEMANA_OPCOES = [
 ];
 
 export default function TurmasPage() {
+  const { data: session } = useSession();
+  const userPerfil = (session?.user as any)?.perfil || 'DOCENTE';
+  const canManageTurmas = userPerfil === 'COORDENADOR' || userPerfil === 'SECRETARIA' || userPerfil === 'OPP';
+
   const [turmas, setTurmas] = useState<TurmaItem[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [opps, setOpps] = useState<UsuarioOPP[]>([]);
@@ -475,13 +480,15 @@ export default function TurmasPage() {
             </button>
           </div>
 
-          <Button
-            onClick={handleOpenCreate}
-            className="bg-[#e30613] hover:bg-[#b7040f] text-white gap-2 font-semibold shadow-sm text-xs"
-          >
-            <Plus className="w-4 h-4" />
-            Nova Turma
-          </Button>
+          {canManageTurmas && (
+            <Button
+              onClick={handleOpenCreate}
+              className="bg-[#e30613] hover:bg-[#b7040f] text-white gap-2 font-semibold shadow-sm text-xs cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Nova Turma
+            </Button>
+          )}
         </div>
       </div>
 
@@ -772,20 +779,24 @@ export default function TurmasPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleOpenEdit(turma)}
-                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors"
-                          title="Editar Turma"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenDelete(turma)}
-                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-colors"
-                          title="Excluir Turma"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {canManageTurmas && (
+                          <>
+                            <button
+                              onClick={() => handleOpenEdit(turma)}
+                              className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors cursor-pointer"
+                              title="Editar Turma"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDelete(turma)}
+                              className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-colors cursor-pointer"
+                              title="Excluir Turma"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -882,26 +893,28 @@ export default function TurmasPage() {
                 >
                   <Eye className="w-3.5 h-3.5" /> Grade & UCs
                 </Button>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOpenEdit(turma)}
-                    className="text-blue-600 h-7 w-7 p-0"
-                    title="Editar"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOpenDelete(turma)}
-                    className="text-red-600 h-7 w-7 p-0"
-                    title="Excluir"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                {canManageTurmas && (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenEdit(turma)}
+                      className="text-blue-600 h-7 w-7 p-0 cursor-pointer"
+                      title="Editar"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenDelete(turma)}
+                      className="text-red-600 h-7 w-7 p-0 cursor-pointer"
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

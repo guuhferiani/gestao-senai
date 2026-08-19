@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +13,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const session = await getServerSession(authOptions);
+    const userPerfil = (session?.user as any)?.perfil;
+    const userId = (session?.user as any)?.id;
+
+    if (!session || (userPerfil !== 'COORDENADOR' && userPerfil !== 'SECRETARIA' && userId !== id)) {
+      return NextResponse.json(
+        { error: 'Acesso não autorizado aos dados deste usuário.' },
+        { status: 403 }
+      );
+    }
 
     const usuario = await prisma.usuario.findUnique({
       where: { id },
@@ -18,6 +30,7 @@ export async function GET(
         id: true,
         nome: true,
         email: true,
+        nif: true,
         perfil: true,
         ativo: true,
         createdAt: true,
@@ -55,8 +68,22 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    const session = await getServerSession(authOptions);
+    const userPerfil = (session?.user as any)?.perfil;
+    const userId = (session?.user as any)?.id;
+
+    const isCoordOrSec = userPerfil === 'COORDENADOR' || userPerfil === 'SECRETARIA';
+    const isSelf = userId === id;
+
+    if (!session || (!isCoordOrSec && !isSelf)) {
+      return NextResponse.json(
+        { error: 'Acesso não autorizado para alterar dados deste usuário.' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    const { nome, email, perfil, ativo, novaSenha } = body;
+    const { nome, email, nif, perfil, ativo, novaSenha } = body;
 
     const usuarioExistente = await prisma.usuario.findUnique({
       where: { id },
@@ -86,8 +113,11 @@ export async function PUT(
     const dataToUpdate: any = {};
     if (nome) dataToUpdate.nome = nome.trim();
     if (email) dataToUpdate.email = email.trim().toLowerCase();
-    if (perfil) dataToUpdate.perfil = perfil;
-    if (ativo !== undefined) dataToUpdate.ativo = Boolean(ativo);
+    if (nif !== undefined) dataToUpdate.nif = nif ? String(nif).trim() : null;
+
+    // Apenas Gestores (Coordenação e Secretaria) podem alterar o perfil ou desativar uma conta
+    if (perfil && isCoordOrSec) dataToUpdate.perfil = perfil;
+    if (ativo !== undefined && isCoordOrSec) dataToUpdate.ativo = Boolean(ativo);
 
     if (novaSenha && novaSenha.trim()) {
       dataToUpdate.senha = await bcrypt.hash(novaSenha.trim(), 10);
@@ -100,6 +130,7 @@ export async function PUT(
         id: true,
         nome: true,
         email: true,
+        nif: true,
         perfil: true,
         ativo: true,
         updatedAt: true,
@@ -116,13 +147,22 @@ export async function PUT(
   }
 }
 
-// DELETE /api/usuarios/[id] - Excluir usuário
+// DELETE /api/usuarios/[id] - Excluir usuário (Apenas Coordenação e Secretaria)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const session = await getServerSession(authOptions);
+    const userPerfil = (session?.user as any)?.perfil;
+
+    if (!session || (userPerfil !== 'COORDENADOR' && userPerfil !== 'SECRETARIA')) {
+      return NextResponse.json(
+        { error: 'Apenas Coordenadores e Secretaria podem excluir contas de usuários.' },
+        { status: 403 }
+      );
+    }
 
     const usuario = await prisma.usuario.findUnique({
       where: { id },

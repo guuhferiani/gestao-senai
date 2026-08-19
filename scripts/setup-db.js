@@ -122,6 +122,24 @@ async function setupDatabase() {
       );
     `;
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS "Usuario" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "nome" TEXT NOT NULL,
+        "email" TEXT NOT NULL UNIQUE,
+        "nif" TEXT,
+        "senha" TEXT NOT NULL,
+        "perfil" TEXT NOT NULL DEFAULT 'DOCENTE',
+        "ativo" BOOLEAN NOT NULL DEFAULT true,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    await sql`
+      ALTER TABLE "Usuario" ADD COLUMN IF NOT EXISTS "nif" TEXT;
+    `;
+
     console.log('✅ Tabelas criadas com sucesso!');
 
     console.log('2. Inserindo/Atualizando usuários padrão...');
@@ -130,21 +148,30 @@ async function setupDatabase() {
 
     // Coordenador
     await sql`
-      INSERT INTO "Usuario" ("id", "nome", "email", "senha", "perfil", "ativo", "createdAt", "updatedAt")
-      VALUES ('user-coord-1', 'Coordenador SENAI', 'coordenador@sp.senai.br', ${senhaHash}, 'COORDENADOR', true, ${now}, ${now})
+      INSERT INTO "Usuario" ("id", "nome", "email", "nif", "senha", "perfil", "ativo", "createdAt", "updatedAt")
+      VALUES ('user-coord-1', 'Coordenador SENAI', 'coordenador@sp.senai.br', '100001', ${senhaHash}, 'COORDENADOR', true, ${now}, ${now})
       ON CONFLICT ("email") 
-      DO UPDATE SET "senha" = ${senhaHash}, "ativo" = true, "updatedAt" = ${now};
+      DO UPDATE SET "senha" = ${senhaHash}, "nif" = '100001', "ativo" = true, "updatedAt" = ${now};
     `;
-    console.log('✅ Coordenador inserido/atualizado: coordenador@sp.senai.br | senha: senai123');
+    console.log('✅ Coordenador inserido/atualizado: coordenador@sp.senai.br (NIF 100001) | senha: senai123');
+
+    // Secretaria
+    await sql`
+      INSERT INTO "Usuario" ("id", "nome", "email", "nif", "senha", "perfil", "ativo", "createdAt", "updatedAt")
+      VALUES ('user-sec-1', 'Secretaria Administrativa', 'secretaria@sp.senai.br', '100002', ${senhaHash}, 'SECRETARIA', true, ${now}, ${now})
+      ON CONFLICT ("email") 
+      DO UPDATE SET "senha" = ${senhaHash}, "nif" = '100002', "ativo" = true, "updatedAt" = ${now};
+    `;
+    console.log('✅ Secretaria inserida/atualizada: secretaria@sp.senai.br (NIF 100002) | senha: senai123');
 
     // OPP
     await sql`
-      INSERT INTO "Usuario" ("id", "nome", "email", "senha", "perfil", "ativo", "createdAt", "updatedAt")
-      VALUES ('user-opp-1', 'Orientador TI', 'opp@sp.senai.br', ${senhaHash}, 'OPP', true, ${now}, ${now})
+      INSERT INTO "Usuario" ("id", "nome", "email", "nif", "senha", "perfil", "ativo", "createdAt", "updatedAt")
+      VALUES ('user-opp-1', 'Orientador TI', 'opp@sp.senai.br', '100003', ${senhaHash}, 'OPP', true, ${now}, ${now})
       ON CONFLICT ("email") 
-      DO UPDATE SET "senha" = ${senhaHash}, "ativo" = true, "updatedAt" = ${now};
+      DO UPDATE SET "senha" = ${senhaHash}, "nif" = '100003', "ativo" = true, "updatedAt" = ${now};
     `;
-    console.log('✅ OPP inserido/atualizado: opp@sp.senai.br | senha: senai123');
+    console.log('✅ OPP inserido/atualizado: opp@sp.senai.br (NIF 100003) | senha: senai123');
 
     console.log('🎉 Setup do banco de dados concluído com sucesso!');
   } catch (err) {

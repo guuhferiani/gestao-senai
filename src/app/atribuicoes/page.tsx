@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { 
   CalendarDays, 
   Sparkles, 
@@ -21,7 +23,9 @@ import {
   HelpCircle,
   GraduationCap,
   ChevronRight,
-  RefreshCw
+  RefreshCw,
+  ShieldAlert,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,13 +68,13 @@ interface AtribuicaoItem {
   uc: {
     id: string;
     nome: string;
+    areaId: string;
   };
   docente?: {
     id: string;
-    tipoContratacao: string;
     cargaHorariaContratada: number;
-    usuario?: {
-      id: string;
+    tipoContratacao: string;
+    usuario: {
       nome: string;
       email: string;
     };
@@ -106,6 +110,10 @@ const DIAS_SEMANA_MAP = [
 ];
 
 export default function AtribuicoesPage() {
+  const { data: session, status: sessionStatus } = useSession();
+  const userPerfil = (session?.user as any)?.perfil;
+  const isAuthorized = userPerfil === 'COORDENADOR' || userPerfil === 'SECRETARIA' || userPerfil === 'OPP';
+
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [selectedTurmaId, setSelectedTurmaId] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -324,6 +332,42 @@ export default function AtribuicoesPage() {
   const totalSlotsTurma = selectedTurma?.atribuicoes.length || 0;
   const atribuidosTurma = selectedTurma?.atribuicoes.filter((a) => a.docenteId !== null).length || 0;
   const percentualTurma = totalSlotsTurma > 0 ? Math.round((atribuidosTurma / totalSlotsTurma) * 100) : 0;
+
+  // Se estiver carregando sessão
+  if (sessionStatus === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-2">
+          <RefreshCw className="w-6 h-6 animate-spin text-[#e30613]" />
+          <span className="text-xs text-gray-500 font-medium">Verificando permissões...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Se perfil não tiver autorização (Docente)
+  if (!isAuthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center animate-in fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-950/50 text-[#e30613] flex items-center justify-center mb-4 shadow-sm border border-red-200 dark:border-red-900/50">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+          Acesso Restrito
+        </h2>
+        <p className="text-xs text-gray-500 dark:text-neutral-400 mt-2 max-w-md leading-relaxed">
+          A <strong>Matriz de Atribuição & Grade Semanal</strong> é gerenciada pela <strong>Coordenação</strong>, <strong>Secretaria</strong> e <strong>Orientadores (OPP)</strong>. Para consultar seus horários e turmas atribuídas, acesse sua <Link href="/docentes" className="text-[#e30613] underline font-bold">Agenda de Docente</Link>.
+        </p>
+        <div className="mt-6">
+          <Link href="/dashboard">
+            <Button className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold gap-2 shadow-sm cursor-pointer">
+              <ArrowLeft className="w-4 h-4" /> Voltar ao Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">

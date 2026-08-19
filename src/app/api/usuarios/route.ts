@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/usuarios - Listar usuários com filtros e contadores
+// GET /api/usuarios - Listar usuários com filtros e contadores (Apenas Coordenador e Secretaria)
 export async function GET(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    const userPerfil = (session?.user as any)?.perfil;
+
+    if (!session || (userPerfil !== 'COORDENADOR' && userPerfil !== 'SECRETARIA')) {
+      return NextResponse.json(
+        { error: 'Acesso não autorizado. Apenas Coordenadores e Secretaria podem consultar usuários.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
     const perfil = searchParams.get('perfil') || 'ALL';
@@ -31,7 +43,7 @@ export async function GET(request: Request) {
       where.ativo = false;
     }
 
-    const [usuarios, totalCount, coordenadoresCount, oppsCount, docentesCount] =
+    const [usuarios, totalCount, coordenadoresCount, secretariaCount, oppsCount, docentesCount] =
       await Promise.all([
         prisma.usuario.findMany({
           where,
@@ -39,6 +51,7 @@ export async function GET(request: Request) {
             id: true,
             nome: true,
             email: true,
+            nif: true,
             perfil: true,
             ativo: true,
             createdAt: true,
@@ -58,6 +71,7 @@ export async function GET(request: Request) {
         }),
         prisma.usuario.count(),
         prisma.usuario.count({ where: { perfil: 'COORDENADOR' } }),
+        prisma.usuario.count({ where: { perfil: 'SECRETARIA' } }),
         prisma.usuario.count({ where: { perfil: 'OPP' } }),
         prisma.usuario.count({ where: { perfil: 'DOCENTE' } }),
       ]);
@@ -67,6 +81,7 @@ export async function GET(request: Request) {
       metricas: {
         total: totalCount,
         coordenadores: coordenadoresCount,
+        secretaria: secretariaCount,
         opps: oppsCount,
         docentes: docentesCount,
       },
@@ -74,17 +89,27 @@ export async function GET(request: Request) {
   } catch (error: any) {
     console.error('Erro ao listar usuários:', error);
     return NextResponse.json(
-      { error: 'Erro interno ao consultar usuários.', details: error.message },
+      { error: 'Erro ao buscar usuários cadastrados.', details: error.message },
       { status: 500 }
     );
   }
 }
 
-// POST /api/usuarios - Cadastrar novo usuário com senha criptografada
+// POST /api/usuarios - Cadastrar novo usuário com senha criptografada (Apenas Coordenador e Secretaria)
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    const userPerfil = (session?.user as any)?.perfil;
+
+    if (!session || (userPerfil !== 'COORDENADOR' && userPerfil !== 'SECRETARIA')) {
+      return NextResponse.json(
+        { error: 'Acesso não autorizado. Apenas Coordenadores e Secretaria podem cadastrar usuários.' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    const { nome, email, senha, perfil, ativo = true } = body;
+    const { nome, email, nif, senha, perfil, ativo = true } = body;
 
     if (!nome || !email || !perfil) {
       return NextResponse.json(
@@ -116,6 +141,7 @@ export async function POST(request: Request) {
       data: {
         nome: nome.trim(),
         email: normalizedEmail,
+        nif: nif ? String(nif).trim() : null,
         senha: hashedPassword,
         perfil,
         ativo: Boolean(ativo),
@@ -124,6 +150,7 @@ export async function POST(request: Request) {
         id: true,
         nome: true,
         email: true,
+        nif: true,
         perfil: true,
         ativo: true,
         createdAt: true,

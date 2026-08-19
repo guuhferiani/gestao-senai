@@ -14,18 +14,20 @@ model Usuario {
   id        String   @id @default(uuid())
   nome      String
   email     String   @unique
+  nif       String?  // NIF / Matrícula Funcional do Colaborador SENAI
   senha     String
-  perfil    String   @default("DOCENTE") // DOCENTE, COORDENADOR, OPP
+  perfil    String   @default("DOCENTE") // DOCENTE, COORDENADOR, SECRETARIA, OPP
   ativo     Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relacionamento com Docente (1:1 opcional, pois coordenador pode não ser docente)
+  // Relacionamento com Docente (1:1 opcional, pois coordenador/secretaria pode não ser docente)
   docente Docente?
 }
 
 // enum Perfil {
 //   COORDENADOR
+//   SECRETARIA
 //   OPP
 //   DOCENTE
 // }

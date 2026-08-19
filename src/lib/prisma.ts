@@ -8,10 +8,15 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
+const createPrismaClient = () => new PrismaClient({ adapter })
 
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+
+// Força atualização em desenvolvimento para reconhecer alterações no schema
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = createPrismaClient()
 }
+// Atualizado com suporte ao campo nif no modelo Usuario
+
 
 
