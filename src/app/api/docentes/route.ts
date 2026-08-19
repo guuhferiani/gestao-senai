@@ -14,6 +14,11 @@ export async function GET(request: Request) {
     const turno = searchParams.get('turno'); // manha, tarde, noite, integral
 
     const docentes = await prisma.docente.findMany({
+      where: {
+        usuario: {
+          isNot: null,
+        },
+      },
       include: {
         usuario: {
           select: {
@@ -61,7 +66,7 @@ export async function GET(request: Request) {
     });
 
     // Filtros em memória (para filtros compostos e flexíveis)
-    let filtered = docentes;
+    let filtered = docentes.filter((d) => d.usuario !== null);
 
     if (search) {
       filtered = filtered.filter(

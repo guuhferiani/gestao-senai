@@ -66,13 +66,13 @@ interface DocenteItem {
   dispIntegral: boolean;
   dispHorarios?: string | null;
   createdAt: string;
-  usuario: {
+  usuario?: {
     id: string;
     nome: string;
     email: string;
     perfil: string;
     ativo: boolean;
-  };
+  } | null;
   areas: {
     area: {
       id: string;
@@ -245,10 +245,10 @@ export default function DocentesPage() {
     const hasNoite = parsedHorarios.some((h) => h.startsWith('N'));
 
     setFormData({
-      nome: docente.usuario.nome,
-      email: docente.usuario.email,
+      nome: docente.usuario?.nome || '',
+      email: docente.usuario?.email || '',
       senha: '', // Opcional na edição
-      ativo: docente.usuario.ativo,
+      ativo: docente.usuario?.ativo ?? true,
       cargaHorariaContratada: docente.cargaHorariaContratada,
       tipoContratacao: docente.tipoContratacao,
       observacoes: docente.observacoes || '',
@@ -494,24 +494,27 @@ export default function DocentesPage() {
     }
   };
 
-  // Filtragem de Docentes com regra de privacidade para DOCENTE
+  // Filtragem de Docentes com regra de privacidade para DOCENTE e proteção contra nulos
   const filteredDocentes = useMemo(() => {
     return docentes.filter((d) => {
+      // Ignorar registros corrompidos ou sem usuário vinculado
+      if (!d || !d.usuario) return false;
+
       // Se for DOCENTE logado, enxerga apenas o seu próprio cadastro
       if (userPerfil === 'DOCENTE') {
         const userEmail = session?.user?.email?.toLowerCase();
-        return d.usuario.email.toLowerCase() === userEmail;
+        return d.usuario.email?.toLowerCase() === userEmail;
       }
 
       const matchSearch =
         !searchTerm.trim() ||
-        d.usuario.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.areas.some((a) => a.area.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        d.competencias.some((c) => c.uc.nome.toLowerCase().includes(searchTerm.toLowerCase()));
+        (d.usuario.nome && d.usuario.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (d.usuario.email && d.usuario.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (d.areas && d.areas.some((a) => a.area?.nome?.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+        (d.competencias && d.competencias.some((c) => c.uc?.nome?.toLowerCase().includes(searchTerm.toLowerCase())));
 
       const matchArea =
-        selectedAreaFilter === 'ALL' || d.areas.some((a) => a.area.id === selectedAreaFilter);
+        selectedAreaFilter === 'ALL' || (d.areas && d.areas.some((a) => a.area?.id === selectedAreaFilter));
 
       const matchStatus =
         selectedStatusFilter === 'ALL' ||
@@ -529,9 +532,9 @@ export default function DocentesPage() {
     });
   }, [docentes, searchTerm, selectedAreaFilter, selectedStatusFilter, selectedTurnoFilter, userPerfil, session]);
 
-  // Estatísticas calculadas
+  // Estatísticas calculadas de forma segura
   const totalDocentes = filteredDocentes.length;
-  const totalAtivos = filteredDocentes.filter((d) => d.usuario.ativo).length;
+  const totalAtivos = filteredDocentes.filter((d) => d.usuario?.ativo).length;
   const cargaHorariaTotal = filteredDocentes.reduce((acc, curr) => acc + (curr.cargaHorariaContratada || 0), 0);
   const mediaCargaHoraria = totalDocentes > 0 ? Math.round(cargaHorariaTotal / totalDocentes) : 0;
   const totalCompetencias = filteredDocentes.reduce((acc, curr) => acc + (curr.competencias?.length || 0), 0);
@@ -784,14 +787,14 @@ export default function DocentesPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-950/60 text-[#e30613] font-bold flex items-center justify-center text-xs shrink-0">
-                          {docente.usuario.nome.charAt(0).toUpperCase()}
+                          {(docente.usuario?.nome || 'D').charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="font-bold text-gray-900 dark:text-neutral-100 text-sm">
-                            {docente.usuario.nome}
+                            {docente.usuario?.nome || 'Docente'}
                           </div>
                           <div className="text-gray-500 dark:text-neutral-400 text-xs">
-                            {docente.usuario.email}
+                            {docente.usuario?.email || ''}
                           </div>
                         </div>
                       </div>
@@ -895,7 +898,7 @@ export default function DocentesPage() {
 
                     {/* Status */}
                     <td className="px-6 py-4">
-                      {docente.usuario.ativo ? (
+                      {docente.usuario?.ativo ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
                           <CheckCircle2 className="w-3.5 h-3.5" /> Ativo
                         </span>
@@ -962,19 +965,19 @@ export default function DocentesPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/60 text-[#e30613] font-bold flex items-center justify-center text-sm shrink-0">
-                      {docente.usuario.nome.charAt(0).toUpperCase()}
+                      {(docente.usuario?.nome || 'D').charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 dark:text-neutral-100 text-sm">
-                        {docente.usuario.nome}
+                        {docente.usuario?.nome || 'Docente'}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-neutral-400">
-                        {docente.usuario.email}
+                        {docente.usuario?.email || ''}
                       </p>
                     </div>
                   </div>
 
-                  {docente.usuario.ativo ? (
+                  {docente.usuario?.ativo ? (
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" title="Ativo" />
                   ) : (
                     <span className="w-2.5 h-2.5 rounded-full bg-gray-400 shrink-0" title="Inativo" />
@@ -1779,7 +1782,7 @@ export default function DocentesPage() {
           <DialogHeader className="border-b border-gray-200 dark:border-neutral-800 pb-3">
             <DialogTitle className="text-lg font-bold flex items-center gap-2 text-gray-900 dark:text-neutral-100">
               <GraduationCap className="w-5 h-5 text-[#e30613]" />
-              Ficha do Docente: {selectedDocente?.usuario.nome}
+              Ficha do Docente: {selectedDocente?.usuario?.nome || 'Docente'}
             </DialogTitle>
           </DialogHeader>
 
@@ -1789,13 +1792,13 @@ export default function DocentesPage() {
               <div className="bg-gray-50 dark:bg-neutral-800/40 p-5 rounded-2xl border border-gray-200 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-950/60 text-[#e30613] font-extrabold flex items-center justify-center text-xl shadow-xs">
-                    {selectedDocente.usuario.nome.charAt(0).toUpperCase()}
+                    {(selectedDocente.usuario?.nome || 'D').charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <h4 className="text-base font-bold text-gray-900 dark:text-neutral-100">
-                      {selectedDocente.usuario.nome}
+                      {selectedDocente.usuario?.nome || 'Docente'}
                     </h4>
-                    <p className="text-gray-500 dark:text-neutral-400 text-xs">{selectedDocente.usuario.email}</p>
+                    <p className="text-gray-500 dark:text-neutral-400 text-xs">{selectedDocente.usuario?.email || ''}</p>
                     <span className="text-[11px] text-gray-400">
                       Cadastrado em {new Date(selectedDocente.createdAt).toLocaleDateString('pt-BR')}
                     </span>
@@ -1803,7 +1806,7 @@ export default function DocentesPage() {
                 </div>
 
                 <div>
-                  {selectedDocente.usuario.ativo ? (
+                  {selectedDocente.usuario?.ativo ? (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300/60">
                       ✓ Ativo na Unidade
                     </span>
@@ -1982,7 +1985,7 @@ export default function DocentesPage() {
             <DialogDescription className="text-xs text-gray-500">
               Tem certeza que deseja excluir o cadastro do professor{' '}
               <strong className="text-gray-900 dark:text-neutral-100">
-                {selectedDocente?.usuario.nome}
+                {selectedDocente?.usuario?.nome || 'Docente'}
               </strong>
               ?
             </DialogDescription>
