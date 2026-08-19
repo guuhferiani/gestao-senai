@@ -494,11 +494,17 @@ export default function DocentesPage() {
     }
   };
 
-  // Filtragem dos Docentes
+  // Filtragem de Docentes com regra de privacidade para DOCENTE
   const filteredDocentes = useMemo(() => {
     return docentes.filter((d) => {
+      // Se for DOCENTE logado, enxerga apenas o seu próprio cadastro
+      if (userPerfil === 'DOCENTE') {
+        const userEmail = session?.user?.email?.toLowerCase();
+        return d.usuario.email.toLowerCase() === userEmail;
+      }
+
       const matchSearch =
-        searchTerm === '' ||
+        !searchTerm.trim() ||
         d.usuario.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
         d.usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         d.areas.some((a) => a.area.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -521,14 +527,14 @@ export default function DocentesPage() {
 
       return matchSearch && matchArea && matchStatus && matchTurno;
     });
-  }, [docentes, searchTerm, selectedAreaFilter, selectedStatusFilter, selectedTurnoFilter]);
+  }, [docentes, searchTerm, selectedAreaFilter, selectedStatusFilter, selectedTurnoFilter, userPerfil, session]);
 
   // Estatísticas calculadas
-  const totalDocentes = docentes.length;
-  const totalAtivos = docentes.filter((d) => d.usuario.ativo).length;
-  const cargaHorariaTotal = docentes.reduce((acc, curr) => acc + (curr.cargaHorariaContratada || 0), 0);
+  const totalDocentes = filteredDocentes.length;
+  const totalAtivos = filteredDocentes.filter((d) => d.usuario.ativo).length;
+  const cargaHorariaTotal = filteredDocentes.reduce((acc, curr) => acc + (curr.cargaHorariaContratada || 0), 0);
   const mediaCargaHoraria = totalDocentes > 0 ? Math.round(cargaHorariaTotal / totalDocentes) : 0;
-  const totalCompetencias = docentes.reduce((acc, curr) => acc + (curr.competencias?.length || 0), 0);
+  const totalCompetencias = filteredDocentes.reduce((acc, curr) => acc + (curr.competencias?.length || 0), 0);
 
   return (
     <div className="space-y-6 pb-12">
@@ -537,14 +543,16 @@ export default function DocentesPage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">
-              Corpo Docente & Competências
+              {userPerfil === 'DOCENTE' ? 'Minha Ficha Docente & Agenda' : 'Corpo Docente & Competências'}
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-950/60 text-[#e30613]">
-              Gestão Acadêmica
+              {userPerfil === 'DOCENTE' ? 'Área do Professor' : 'Gestão Acadêmica'}
             </span>
           </div>
           <p className="text-sm text-gray-500 dark:text-neutral-400 mt-1">
-            Cadastro de professores, contratação, turnos de disponibilidade e mapeamento técnico de competências por UC.
+            {userPerfil === 'DOCENTE'
+              ? 'Consulte seus dados cadastrais, carga horária contratada e acesse sua agenda mensal completa.'
+              : 'Cadastro de professores, contratação, turnos de disponibilidade e mapeamento técnico de competências por UC.'}
           </p>
         </div>
 

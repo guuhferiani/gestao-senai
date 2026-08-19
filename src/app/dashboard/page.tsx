@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   Users, 
   Calendar, 
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { DocenteDashboard } from '@/components/dashboard/docente-dashboard';
 
 interface DashboardStats {
   metricasGlobais: {
@@ -60,6 +62,9 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
+  const { data: session, status: sessionStatus } = useSession();
+  const userPerfil = (session?.user as any)?.perfil;
+
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -79,8 +84,15 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (userPerfil !== 'DOCENTE') {
+      fetchStats();
+    }
+  }, [userPerfil]);
+
+  // Se o usuário logado for DOCENTE, exibe o painel pedagógico restrito exclusivo dele
+  if (userPerfil === 'DOCENTE') {
+    return <DocenteDashboard />;
+  }
 
   return (
     <div className="space-y-6 pb-16">

@@ -404,6 +404,15 @@ export default function TurmasPage() {
   // Filtragem das Turmas
   const filteredTurmas = useMemo(() => {
     return turmas.filter((t) => {
+      // Se for DOCENTE logado, exibe apenas turmas onde ele ministra aulas
+      if (userPerfil === 'DOCENTE') {
+        const userName = session?.user?.name?.toLowerCase();
+        const docenteVinculado = t.atribuicoes?.some(
+          (a) => a.docente?.usuario?.nome?.toLowerCase() === userName
+        );
+        if (!docenteVinculado) return false;
+      }
+
       const matchSearch =
         searchTerm === '' ||
         t.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -421,14 +430,14 @@ export default function TurmasPage() {
 
       return matchSearch && matchArea && matchTipoCurso && matchPeriodo;
     });
-  }, [turmas, searchTerm, selectedAreaFilter, selectedTipoCursoFilter, selectedPeriodoFilter]);
+  }, [turmas, searchTerm, selectedAreaFilter, selectedTipoCursoFilter, selectedPeriodoFilter, userPerfil, session]);
 
   // Métricas
-  const totalTurmas = turmas.length;
-  const totalTecnicos = turmas.filter((t) => t.tipoCurso === 'TECNICO').length;
-  const totalCaiFic = turmas.filter((t) => t.tipoCurso === 'CAI' || t.tipoCurso === 'FIC').length;
+  const totalTurmas = filteredTurmas.length;
+  const totalTecnicos = filteredTurmas.filter((t) => t.tipoCurso === 'TECNICO').length;
+  const totalCaiFic = filteredTurmas.filter((t) => t.tipoCurso === 'CAI' || t.tipoCurso === 'FIC').length;
   const mediaPreenchimento = totalTurmas > 0
-    ? Math.round(turmas.reduce((acc, curr) => acc + curr.percentualConclusao, 0) / totalTurmas)
+    ? Math.round(filteredTurmas.reduce((acc, curr) => acc + curr.percentualConclusao, 0) / totalTurmas)
     : 0;
 
   // Obter UCs da área atualmente selecionada no formulário
@@ -442,14 +451,16 @@ export default function TurmasPage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">
-              Turmas & Ocupação
+              {userPerfil === 'DOCENTE' ? 'Minhas Turmas Atribuídas' : 'Turmas & Ocupação'}
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-950/60 text-[#e30613]">
-              Programação Acadêmica
+              {userPerfil === 'DOCENTE' ? 'Área do Professor' : 'Programação Acadêmica'}
             </span>
           </div>
           <p className="text-sm text-gray-500 dark:text-neutral-400 mt-1">
-            Gestão de turmas (Técnico, CAI, FIC), planos de unidades curriculares e acompanhamento da grade semanal.
+            {userPerfil === 'DOCENTE'
+              ? 'Turmas em andamento onde você possui aulas e unidades curriculares atribuídas.'
+              : 'Gestão de turmas (Técnico, CAI, FIC), planos de unidades curriculares e acompanhamento da grade semanal.'}
           </p>
         </div>
 

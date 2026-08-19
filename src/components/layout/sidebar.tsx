@@ -38,22 +38,31 @@ export function Sidebar() {
 
   // Filtragem estrita dos itens do menu conforme as Regras de Negócio do SENAI
   const menuItems = useMemo(() => {
-    return allMenuItems.filter((item) => {
-      // 1. Gestão de Usuários e Simulador: exclusivo para Coordenador e Secretaria
-      if (item.href === '/usuarios' || item.href === '/simulador') {
-        return perfil === 'COORDENADOR' || perfil === 'SECRETARIA';
-      }
-      // 2. Cadastro Geral de Áreas e UCs: exclusivo para Coordenador e Secretaria
-      if (item.href === '/areas') {
-        return perfil === 'COORDENADOR' || perfil === 'SECRETARIA';
-      }
-      // 3. Atribuição & Grade e Relatórios: Coordenador, Secretaria e OPP
-      if (item.href === '/atribuicoes' || item.href === '/relatorios') {
-        return perfil === 'COORDENADOR' || perfil === 'SECRETARIA' || perfil === 'OPP';
-      }
-      // 4. Dashboard, Corpo Docente (Minha Agenda) e Turmas: visível a todos
-      return true;
-    });
+    return allMenuItems
+      .filter((item) => {
+        // 1. Gestão de Usuários e Simulador: exclusivo para Coordenador e Secretaria
+        if (item.href === '/usuarios' || item.href === '/simulador') {
+          return perfil === 'COORDENADOR' || perfil === 'SECRETARIA';
+        }
+        // 2. Cadastro Geral de Áreas e UCs: exclusivo para Coordenador e Secretaria
+        if (item.href === '/areas') {
+          return perfil === 'COORDENADOR' || perfil === 'SECRETARIA';
+        }
+        // 3. Atribuição & Grade e Relatórios: Coordenador, Secretaria e OPP
+        if (item.href === '/atribuicoes' || item.href === '/relatorios') {
+          return perfil === 'COORDENADOR' || perfil === 'SECRETARIA' || perfil === 'OPP';
+        }
+        // 4. Dashboard, Corpo Docente (Minha Agenda) e Turmas: visível a todos
+        return true;
+      })
+      .map((item) => {
+        if (perfil === 'DOCENTE') {
+          if (item.href === '/dashboard') return { ...item, name: 'Meu Painel' };
+          if (item.href === '/docentes') return { ...item, name: 'Minha Agenda & Horários', icon: CalendarDays };
+          if (item.href === '/turmas') return { ...item, name: 'Minhas Turmas' };
+        }
+        return item;
+      });
   }, [perfil]);
 
   return (
