@@ -23,6 +23,7 @@ import {
   LayoutGrid,
   List,
   Eye,
+  EyeOff,
   GraduationCap,
   Briefcase,
   ArrowLeft
@@ -94,7 +95,8 @@ export default function UsuariosPage() {
   });
 
   // Form de Redefinição de Senha
-  const [novaSenha, setNovaSenha] = useState('');
+  const [novaSenha, setNovaSenha] = useState('Senai@123');
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -165,7 +167,8 @@ export default function UsuariosPage() {
   // Abrir Modal de Redefinição de Senha
   const handleOpenPasswordReset = (usuario: UsuarioItem) => {
     setSelectedUsuario(usuario);
-    setNovaSenha('');
+    setNovaSenha('Senai@123');
+    setShowResetPassword(false);
     setIsPasswordModalOpen(true);
   };
 
@@ -607,14 +610,9 @@ export default function UsuariosPage() {
                       </div>
                     </td>
 
-                    {/* E-mail & NIF */}
-                    <td className="py-4 px-6">
-                      <div className="font-mono text-xs text-gray-900 dark:text-neutral-100">{u.email}</div>
-                      {u.nif && (
-                        <div className="text-[10px] text-gray-400 font-mono mt-0.5">
-                          NIF: <span className="font-semibold text-gray-600 dark:text-neutral-400">{u.nif}</span>
-                        </div>
-                      )}
+                    {/* E-mail Institucional */}
+                    <td className="py-4 px-6 font-mono text-xs text-gray-900 dark:text-neutral-100">
+                      {u.email}
                     </td>
 
                     {/* Perfil */}
@@ -720,11 +718,6 @@ export default function UsuariosPage() {
                       <p className="text-xs text-gray-500 dark:text-neutral-400 font-mono">
                         {u.email}
                       </p>
-                      {u.nif && (
-                        <p className="text-[10px] text-gray-400 font-mono">
-                          NIF: {u.nif}
-                        </p>
-                      )}
                     </div>
                   </div>
 
@@ -947,56 +940,87 @@ export default function UsuariosPage() {
       {/* MODAL DE REDEFINIÇÃO DE SENHA */}
       {/* ========================================================================= */}
       <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
-        <DialogContent className="sm:max-w-md w-[95vw] p-6">
-          <DialogHeader className="border-b border-gray-200 dark:border-neutral-800 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600">
+        <DialogContent className="sm:max-w-lg w-[95vw] p-7 rounded-2xl">
+          <DialogHeader className="border-b border-gray-200 dark:border-neutral-800 pb-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 border border-amber-200 dark:border-amber-900/40">
                 <KeyRound className="w-6 h-6" />
               </div>
               <div>
-                <DialogTitle className="text-base font-bold text-gray-900 dark:text-neutral-100">
-                  Redefinir Senha
+                <DialogTitle className="text-lg font-bold text-gray-900 dark:text-neutral-100">
+                  Redefinir Senha de Acesso
                 </DialogTitle>
-                <DialogDescription className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">
-                  Usuário: <span className="font-bold text-gray-800 dark:text-neutral-200">{selectedUsuario?.nome}</span>
+                <DialogDescription className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
+                  Usuário: <strong className="text-gray-900 dark:text-neutral-100">{selectedUsuario?.nome}</strong> ({selectedUsuario?.email})
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 pt-3">
-            <div>
-              <Label htmlFor="novaSenha" className="text-xs font-semibold">
-                Nova Senha de Acesso <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="novaSenha"
-                name="novaSenha"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Insira a nova senha (mínimo 6 caracteres)"
-                value={novaSenha}
-                onChange={(e) => setNovaSenha(e.target.value)}
-                required
-                className="mt-1.5 text-xs h-10 rounded-xl font-mono"
-              />
+          <form onSubmit={handlePasswordSubmit} className="space-y-4 pt-4">
+            {/* Caixa Informativa sobre a Regra de Senha Padrão */}
+            <div className="p-3.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-xs text-blue-900 dark:text-blue-300 space-y-1.5 leading-relaxed">
+              <div className="font-bold flex items-center gap-1.5 text-blue-800 dark:text-blue-200">
+                <ShieldCheck className="w-4 h-4 text-blue-600" />
+                Regra de Atendimento SENAI
+              </div>
+              <p className="text-[11px] text-blue-700 dark:text-blue-300">
+                O Gestor cadastra a senha padrão provisória <strong className="font-mono text-blue-900 dark:text-blue-100">Senai@123</strong>. O colaborador poderá entrar no sistema e, posteriormente, redefinir sua senha privativa com segurança utilizando seu próprio <strong>E-mail institucional</strong> e <strong>NIF</strong>.
+              </p>
             </div>
 
-            <DialogFooter className="pt-3 border-t border-gray-100 dark:border-neutral-800">
+            <div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="novaSenha" className="text-xs font-semibold">
+                  Senha Provisória <span className="text-red-500">*</span>
+                </Label>
+                <button
+                  type="button"
+                  onClick={() => setNovaSenha('Senai@123')}
+                  className="text-[11px] font-bold text-[#e30613] hover:underline cursor-pointer"
+                >
+                  Restaurar para "Senai@123"
+                </button>
+              </div>
+
+              <div className="relative mt-1.5">
+                <Input
+                  id="novaSenha"
+                  name="novaSenha"
+                  type={showResetPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Ex: Senai@123"
+                  value={novaSenha}
+                  onChange={(e) => setNovaSenha(e.target.value)}
+                  required
+                  className="text-xs h-10 rounded-xl font-mono pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowResetPassword(!showResetPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-neutral-200 cursor-pointer"
+                  title={showResetPassword ? "Ocultar senha" : "Exibir senha"}
+                >
+                  {showResetPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <DialogFooter className="pt-4 border-t border-gray-100 dark:border-neutral-800 gap-2 sm:gap-0">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsPasswordModalOpen(false)}
-                className="text-xs"
+                className="text-xs h-10 px-5 rounded-xl cursor-pointer"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !novaSenha.trim()}
-                className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-semibold"
+                className="bg-[#e30613] hover:bg-[#b7040f] text-white text-xs font-bold h-10 px-5 rounded-xl cursor-pointer shadow-sm"
               >
-                Confirmar Nova Senha
+                {isSubmitting ? 'Salvando...' : 'Confirmar Senha'}
               </Button>
             </DialogFooter>
           </form>
@@ -1042,11 +1066,6 @@ export default function UsuariosPage() {
                 <div className="text-xs font-mono text-gray-600 dark:text-neutral-400">
                   {selectedUsuario.email}
                 </div>
-                {selectedUsuario.nif && (
-                  <div className="text-xs text-gray-500 dark:text-neutral-400 font-mono">
-                    NIF / Matrícula: <strong className="text-gray-800 dark:text-neutral-200">{selectedUsuario.nif}</strong>
-                  </div>
-                )}
               </div>
             )}
 
