@@ -51,6 +51,11 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60, // 8 horas (duração segura de um turno de trabalho no SENAI)
+    updateAge: 60 * 60, // Atualiza o token a cada 1 hora de atividade
+  },
+  jwt: {
+    maxAge: 8 * 60 * 60,
   },
   callbacks: {
     async jwt({ token, user }) {

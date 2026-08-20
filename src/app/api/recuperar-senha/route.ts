@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,20 @@ export async function POST(req: Request) {
 
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedNif = nif ? String(nif).trim() : "";
+
+    // Proteção de Força Bruta: Máximo de 5 tentativas por minuto por IP/E-mail
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const rateLimitKey = `recuperar-senha:${ip}:${normalizedEmail}`;
+    const rateLimit = checkRateLimit(rateLimitKey, 5, 60 * 1000);
+
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: "Muitas tentativas em pouco tempo. Por segurança, aguarde 1 minuto antes de tentar novamente.",
+        },
+        { status: 429 }
+      );
+    }
 
     // 1. Etapa de Verificação de Identidade (E-mail + NIF)
     if (action === "verificar") {

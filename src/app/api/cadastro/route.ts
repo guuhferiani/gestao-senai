@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
@@ -19,6 +20,16 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Apenas e-mails institucionais do SENAI (@sp.senai.br) são permitidos para cadastro." },
         { status: 400 }
+      );
+    }
+
+    // Proteção de Rate Limit: Máximo de 5 cadastros por minuto por IP
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const rateLimit = checkRateLimit(`cadastro:${ip}`, 5, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Muitas tentativas de cadastro a partir deste IP. Aguarde 1 minuto." },
+        { status: 429 }
       );
     }
 
