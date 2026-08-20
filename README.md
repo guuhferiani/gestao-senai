@@ -82,5 +82,14 @@ O projeto adota uma arquitetura moderna, escalável e de alta performance:
 
 ---
 
+## 👥 Créditos e Desenvolvimento
+
+Projeto concebido e desenvolvido por:
+
+* **[Gustavo Feriani](https://github.com/guuhferiani)** — *Idealização, Arquitetura de Software e Desenvolvimento Full-Stack*
+* **Pair Programming & IA Assistiva:** Desenvolvido em colaboração com **Antigravity (Google DeepMind)**
+
+---
+
 ## 🏛️ Padrão Corporativo
-Desenvolvido em conformidade com as diretrizes educacionais e operacionais do **SENAI-SP**.
+Desenvolvido em conformidade com as diretrizes educacionais, operacionais e de identidade visual do **SENAI-SP**.
